@@ -7,13 +7,22 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		D039585D1AB4E649001F6A4D /* TimeLapseModeViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D039585C1AB4E649001F6A4D /* TimeLapseModeViewController.m */; };
+		D03958631AB4F609001F6A4D /* TimeLapseModeReviewViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D03958621AB4F609001F6A4D /* TimeLapseModeReviewViewController.m */; };
+		D03958661AB4F6E0001F6A4D /* TimeLapseModeSetTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D03958651AB4F6E0001F6A4D /* TimeLapseModeSetTableViewController.m */; };
+		D03958691AB4F9B3001F6A4D /* LabeledPickerView.m in Sources */ = {isa = PBXBuildFile; fileRef = D03958681AB4F9B3001F6A4D /* LabeledPickerView.m */; };
 		D0421B7A1AA96CA50069C601 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = D0421B791AA96CA50069C601 /* main.m */; };
 		D0421B7D1AA96CA50069C601 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = D0421B7C1AA96CA50069C601 /* AppDelegate.m */; };
-		D0421B801AA96CA50069C601 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D0421B7F1AA96CA50069C601 /* ViewController.m */; };
 		D0421B831AA96CA50069C601 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D0421B811AA96CA50069C601 /* Main.storyboard */; };
 		D0421B851AA96CA50069C601 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D0421B841AA96CA50069C601 /* Images.xcassets */; };
 		D0421B881AA96CA50069C601 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = D0421B861AA96CA50069C601 /* LaunchScreen.xib */; };
-		D0421B941AA96CA50069C601 /* Hermes_ControllerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D0421B931AA96CA50069C601 /* Hermes_ControllerTests.m */; };
+		D05880C01AB2902E006D7760 /* 37x-Checkmark.png in Resources */ = {isa = PBXBuildFile; fileRef = D05880BE1AB2902E006D7760 /* 37x-Checkmark.png */; };
+		D05880C11AB2902E006D7760 /* 37x-Checkmark@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = D05880BF1AB2902E006D7760 /* 37x-Checkmark@2x.png */; };
+		D05DD6A31AAE82710088AF10 /* Constants.m in Sources */ = {isa = PBXBuildFile; fileRef = D05DD6A21AAE82710088AF10 /* Constants.m */; };
+		D05DD6A61AAEA6DA0088AF10 /* MBProgressHUD.m in Sources */ = {isa = PBXBuildFile; fileRef = D05DD6A51AAEA6DA0088AF10 /* MBProgressHUD.m */; };
+		D05DD6B01AAF8CE10088AF10 /* HermesControllerManager.m in Sources */ = {isa = PBXBuildFile; fileRef = D05DD6AF1AAF8CE10088AF10 /* HermesControllerManager.m */; };
+		D05DD6B31AB0D4130088AF10 /* BLEInterface.m in Sources */ = {isa = PBXBuildFile; fileRef = D05DD6B21AB0D4130088AF10 /* BLEInterface.m */; };
+		D0751F9B1AACF03600439377 /* LiveModeViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D0751F9A1AACF03600439377 /* LiveModeViewController.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -27,19 +36,38 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		D0421B741AA96CA50069C601 /* Hermes Controller.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Hermes Controller.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		D039585B1AB4E649001F6A4D /* TimeLapseModeViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TimeLapseModeViewController.h; sourceTree = "<group>"; };
+		D039585C1AB4E649001F6A4D /* TimeLapseModeViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TimeLapseModeViewController.m; sourceTree = "<group>"; };
+		D03958611AB4F609001F6A4D /* TimeLapseModeReviewViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TimeLapseModeReviewViewController.h; sourceTree = "<group>"; };
+		D03958621AB4F609001F6A4D /* TimeLapseModeReviewViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TimeLapseModeReviewViewController.m; sourceTree = "<group>"; };
+		D03958641AB4F6E0001F6A4D /* TimeLapseModeSetTableViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TimeLapseModeSetTableViewController.h; sourceTree = "<group>"; };
+		D03958651AB4F6E0001F6A4D /* TimeLapseModeSetTableViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TimeLapseModeSetTableViewController.m; sourceTree = "<group>"; };
+		D03958671AB4F9B3001F6A4D /* LabeledPickerView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LabeledPickerView.h; sourceTree = "<group>"; };
+		D03958681AB4F9B3001F6A4D /* LabeledPickerView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LabeledPickerView.m; sourceTree = "<group>"; };
+		D0421B741AA96CA50069C601 /* HermesControllerApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HermesControllerApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D0421B781AA96CA50069C601 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		D0421B791AA96CA50069C601 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		D0421B7B1AA96CA50069C601 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		D0421B7C1AA96CA50069C601 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
-		D0421B7E1AA96CA50069C601 /* ViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
-		D0421B7F1AA96CA50069C601 /* ViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
 		D0421B821AA96CA50069C601 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		D0421B841AA96CA50069C601 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		D0421B871AA96CA50069C601 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/LaunchScreen.xib; sourceTree = "<group>"; };
-		D0421B8D1AA96CA50069C601 /* Hermes ControllerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Hermes ControllerTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		D0421B8D1AA96CA50069C601 /* HermesControllerAppTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = HermesControllerAppTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		D0421B921AA96CA50069C601 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		D0421B931AA96CA50069C601 /* Hermes_ControllerTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Hermes_ControllerTests.m; sourceTree = "<group>"; };
+		D05880BE1AB2902E006D7760 /* 37x-Checkmark.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "37x-Checkmark.png"; sourceTree = "<group>"; };
+		D05880BF1AB2902E006D7760 /* 37x-Checkmark@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "37x-Checkmark@2x.png"; sourceTree = "<group>"; };
+		D05DD6A11AAE81EC0088AF10 /* Constants.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Constants.h; sourceTree = "<group>"; };
+		D05DD6A21AAE82710088AF10 /* Constants.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Constants.m; sourceTree = "<group>"; };
+		D05DD6A41AAEA6DA0088AF10 /* MBProgressHUD.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MBProgressHUD.h; sourceTree = "<group>"; };
+		D05DD6A51AAEA6DA0088AF10 /* MBProgressHUD.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MBProgressHUD.m; sourceTree = "<group>"; };
+		D05DD6A71AAEAB750088AF10 /* BluetoothInterface1.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BluetoothInterface1.h; sourceTree = "<group>"; };
+		D05DD6A81AAEAB750088AF10 /* BluetoothInterface1.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BluetoothInterface1.m; sourceTree = "<group>"; };
+		D05DD6AE1AAF8CE10088AF10 /* HermesControllerManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HermesControllerManager.h; sourceTree = "<group>"; };
+		D05DD6AF1AAF8CE10088AF10 /* HermesControllerManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HermesControllerManager.m; sourceTree = "<group>"; };
+		D05DD6B11AB0D4130088AF10 /* BLEInterface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BLEInterface.h; sourceTree = "<group>"; };
+		D05DD6B21AB0D4130088AF10 /* BLEInterface.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BLEInterface.m; sourceTree = "<group>"; };
+		D0751F991AACF03600439377 /* LiveModeViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LiveModeViewController.h; sourceTree = "<group>"; };
+		D0751F9A1AACF03600439377 /* LiveModeViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LiveModeViewController.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -63,8 +91,8 @@
 		D0421B6B1AA96CA50069C601 = {
 			isa = PBXGroup;
 			children = (
-				D0421B761AA96CA50069C601 /* Hermes Controller */,
-				D0421B901AA96CA50069C601 /* Hermes ControllerTests */,
+				D0421B761AA96CA50069C601 /* HermesControllerApp */,
+				D0421B901AA96CA50069C601 /* HermesControllerAppTests */,
 				D0421B751AA96CA50069C601 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -72,42 +100,51 @@
 		D0421B751AA96CA50069C601 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				D0421B741AA96CA50069C601 /* Hermes Controller.app */,
-				D0421B8D1AA96CA50069C601 /* Hermes ControllerTests.xctest */,
+				D0421B741AA96CA50069C601 /* HermesControllerApp.app */,
+				D0421B8D1AA96CA50069C601 /* HermesControllerAppTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
 		};
-		D0421B761AA96CA50069C601 /* Hermes Controller */ = {
+		D0421B761AA96CA50069C601 /* HermesControllerApp */ = {
 			isa = PBXGroup;
 			children = (
 				D0421B7B1AA96CA50069C601 /* AppDelegate.h */,
 				D0421B7C1AA96CA50069C601 /* AppDelegate.m */,
-				D0421B7E1AA96CA50069C601 /* ViewController.h */,
-				D0421B7F1AA96CA50069C601 /* ViewController.m */,
+				D05DD6AA1AAF749B0088AF10 /* Model */,
+				D0751F9C1AACF0CF00439377 /* Controller */,
 				D0421B811AA96CA50069C601 /* Main.storyboard */,
 				D0421B841AA96CA50069C601 /* Images.xcassets */,
 				D0421B861AA96CA50069C601 /* LaunchScreen.xib */,
 				D0421B771AA96CA50069C601 /* Supporting Files */,
 			);
+			name = HermesControllerApp;
 			path = "Hermes Controller";
 			sourceTree = "<group>";
 		};
 		D0421B771AA96CA50069C601 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				D05DD6A41AAEA6DA0088AF10 /* MBProgressHUD.h */,
+				D05DD6A51AAEA6DA0088AF10 /* MBProgressHUD.m */,
+				D03958671AB4F9B3001F6A4D /* LabeledPickerView.h */,
+				D03958681AB4F9B3001F6A4D /* LabeledPickerView.m */,
+				D05880BE1AB2902E006D7760 /* 37x-Checkmark.png */,
+				D05880BF1AB2902E006D7760 /* 37x-Checkmark@2x.png */,
+				D05DD6A11AAE81EC0088AF10 /* Constants.h */,
+				D05DD6A21AAE82710088AF10 /* Constants.m */,
 				D0421B781AA96CA50069C601 /* Info.plist */,
 				D0421B791AA96CA50069C601 /* main.m */,
 			);
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
-		D0421B901AA96CA50069C601 /* Hermes ControllerTests */ = {
+		D0421B901AA96CA50069C601 /* HermesControllerAppTests */ = {
 			isa = PBXGroup;
 			children = (
-				D0421B931AA96CA50069C601 /* Hermes_ControllerTests.m */,
 				D0421B911AA96CA50069C601 /* Supporting Files */,
 			);
+			name = HermesControllerAppTests;
 			path = "Hermes ControllerTests";
 			sourceTree = "<group>";
 		};
@@ -119,12 +156,40 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
+		D05DD6AA1AAF749B0088AF10 /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				D05DD6AE1AAF8CE10088AF10 /* HermesControllerManager.h */,
+				D05DD6AF1AAF8CE10088AF10 /* HermesControllerManager.m */,
+				D05DD6B11AB0D4130088AF10 /* BLEInterface.h */,
+				D05DD6B21AB0D4130088AF10 /* BLEInterface.m */,
+				D05DD6A71AAEAB750088AF10 /* BluetoothInterface1.h */,
+				D05DD6A81AAEAB750088AF10 /* BluetoothInterface1.m */,
+			);
+			name = Model;
+			sourceTree = "<group>";
+		};
+		D0751F9C1AACF0CF00439377 /* Controller */ = {
+			isa = PBXGroup;
+			children = (
+				D0751F991AACF03600439377 /* LiveModeViewController.h */,
+				D0751F9A1AACF03600439377 /* LiveModeViewController.m */,
+				D039585B1AB4E649001F6A4D /* TimeLapseModeViewController.h */,
+				D039585C1AB4E649001F6A4D /* TimeLapseModeViewController.m */,
+				D03958641AB4F6E0001F6A4D /* TimeLapseModeSetTableViewController.h */,
+				D03958651AB4F6E0001F6A4D /* TimeLapseModeSetTableViewController.m */,
+				D03958611AB4F609001F6A4D /* TimeLapseModeReviewViewController.h */,
+				D03958621AB4F609001F6A4D /* TimeLapseModeReviewViewController.m */,
+			);
+			name = Controller;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		D0421B731AA96CA50069C601 /* Hermes Controller */ = {
+		D0421B731AA96CA50069C601 /* HermesControllerApp */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = D0421B971AA96CA50069C601 /* Build configuration list for PBXNativeTarget "Hermes Controller" */;
+			buildConfigurationList = D0421B971AA96CA50069C601 /* Build configuration list for PBXNativeTarget "HermesControllerApp" */;
 			buildPhases = (
 				D0421B701AA96CA50069C601 /* Sources */,
 				D0421B711AA96CA50069C601 /* Frameworks */,
@@ -134,14 +199,14 @@
 			);
 			dependencies = (
 			);
-			name = "Hermes Controller";
+			name = HermesControllerApp;
 			productName = "Hermes Controller";
-			productReference = D0421B741AA96CA50069C601 /* Hermes Controller.app */;
+			productReference = D0421B741AA96CA50069C601 /* HermesControllerApp.app */;
 			productType = "com.apple.product-type.application";
 		};
-		D0421B8C1AA96CA50069C601 /* Hermes ControllerTests */ = {
+		D0421B8C1AA96CA50069C601 /* HermesControllerAppTests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = D0421B9A1AA96CA50069C601 /* Build configuration list for PBXNativeTarget "Hermes ControllerTests" */;
+			buildConfigurationList = D0421B9A1AA96CA50069C601 /* Build configuration list for PBXNativeTarget "HermesControllerAppTests" */;
 			buildPhases = (
 				D0421B891AA96CA50069C601 /* Sources */,
 				D0421B8A1AA96CA50069C601 /* Frameworks */,
@@ -152,9 +217,9 @@
 			dependencies = (
 				D0421B8F1AA96CA50069C601 /* PBXTargetDependency */,
 			);
-			name = "Hermes ControllerTests";
+			name = HermesControllerAppTests;
 			productName = "Hermes ControllerTests";
-			productReference = D0421B8D1AA96CA50069C601 /* Hermes ControllerTests.xctest */;
+			productReference = D0421B8D1AA96CA50069C601 /* HermesControllerAppTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
 /* End PBXNativeTarget section */
@@ -175,7 +240,7 @@
 					};
 				};
 			};
-			buildConfigurationList = D0421B6F1AA96CA50069C601 /* Build configuration list for PBXProject "Hermes Controller" */;
+			buildConfigurationList = D0421B6F1AA96CA50069C601 /* Build configuration list for PBXProject "HermesControllerApp" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
@@ -188,8 +253,8 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				D0421B731AA96CA50069C601 /* Hermes Controller */,
-				D0421B8C1AA96CA50069C601 /* Hermes ControllerTests */,
+				D0421B731AA96CA50069C601 /* HermesControllerApp */,
+				D0421B8C1AA96CA50069C601 /* HermesControllerAppTests */,
 			);
 		};
 /* End PBXProject section */
@@ -199,8 +264,10 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D05880C01AB2902E006D7760 /* 37x-Checkmark.png in Resources */,
 				D0421B831AA96CA50069C601 /* Main.storyboard in Resources */,
 				D0421B881AA96CA50069C601 /* LaunchScreen.xib in Resources */,
+				D05880C11AB2902E006D7760 /* 37x-Checkmark@2x.png in Resources */,
 				D0421B851AA96CA50069C601 /* Images.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -219,9 +286,17 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D0421B801AA96CA50069C601 /* ViewController.m in Sources */,
+				D039585D1AB4E649001F6A4D /* TimeLapseModeViewController.m in Sources */,
 				D0421B7D1AA96CA50069C601 /* AppDelegate.m in Sources */,
 				D0421B7A1AA96CA50069C601 /* main.m in Sources */,
+				D05DD6B31AB0D4130088AF10 /* BLEInterface.m in Sources */,
+				D05DD6A61AAEA6DA0088AF10 /* MBProgressHUD.m in Sources */,
+				D03958661AB4F6E0001F6A4D /* TimeLapseModeSetTableViewController.m in Sources */,
+				D03958631AB4F609001F6A4D /* TimeLapseModeReviewViewController.m in Sources */,
+				D03958691AB4F9B3001F6A4D /* LabeledPickerView.m in Sources */,
+				D0751F9B1AACF03600439377 /* LiveModeViewController.m in Sources */,
+				D05DD6A31AAE82710088AF10 /* Constants.m in Sources */,
+				D05DD6B01AAF8CE10088AF10 /* HermesControllerManager.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -229,7 +304,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D0421B941AA96CA50069C601 /* Hermes_ControllerTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -238,7 +312,7 @@
 /* Begin PBXTargetDependency section */
 		D0421B8F1AA96CA50069C601 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = D0421B731AA96CA50069C601 /* Hermes Controller */;
+			target = D0421B731AA96CA50069C601 /* HermesControllerApp */;
 			targetProxy = D0421B8E1AA96CA50069C601 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
@@ -345,7 +419,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				INFOPLIST_FILE = "Hermes Controller/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = HermesControllerApp;
 			};
 			name = Debug;
 		};
@@ -355,7 +429,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				INFOPLIST_FILE = "Hermes Controller/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = HermesControllerApp;
 			};
 			name = Release;
 		};
@@ -373,7 +447,7 @@
 				);
 				INFOPLIST_FILE = "Hermes ControllerTests/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = HermesControllerAppTests;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Hermes Controller.app/Hermes Controller";
 			};
 			name = Debug;
@@ -388,7 +462,7 @@
 				);
 				INFOPLIST_FILE = "Hermes ControllerTests/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = HermesControllerAppTests;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Hermes Controller.app/Hermes Controller";
 			};
 			name = Release;
@@ -396,7 +470,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		D0421B6F1AA96CA50069C601 /* Build configuration list for PBXProject "Hermes Controller" */ = {
+		D0421B6F1AA96CA50069C601 /* Build configuration list for PBXProject "HermesControllerApp" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				D0421B951AA96CA50069C601 /* Debug */,
@@ -405,21 +479,23 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		D0421B971AA96CA50069C601 /* Build configuration list for PBXNativeTarget "Hermes Controller" */ = {
+		D0421B971AA96CA50069C601 /* Build configuration list for PBXNativeTarget "HermesControllerApp" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				D0421B981AA96CA50069C601 /* Debug */,
 				D0421B991AA96CA50069C601 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
-		D0421B9A1AA96CA50069C601 /* Build configuration list for PBXNativeTarget "Hermes ControllerTests" */ = {
+		D0421B9A1AA96CA50069C601 /* Build configuration list for PBXNativeTarget "HermesControllerAppTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				D0421B9B1AA96CA50069C601 /* Debug */,
 				D0421B9C1AA96CA50069C601 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
