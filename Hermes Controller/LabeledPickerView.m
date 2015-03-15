@@ -39,9 +39,9 @@
 // This way we can initially size our label to the longest width and we get the same effect Apple uses
 
 - (void) addLabel:(NSString *)labeltext forComponent:(NSUInteger)component forLongestString:(NSString *)longestString {
-	[labels setObject:labeltext forKey:[NSNumber numberWithInt:component]];
+	[labels setObject:labeltext forKey:[NSNumber numberWithInteger:component]];
 	
-	NSString *keyName = [NSString stringWithFormat:@"%@_%@", @"longestString", [NSNumber numberWithInt:component]]; 
+	NSString *keyName = [NSString stringWithFormat:@"%@_%@", @"longestString", [NSNumber numberWithInteger:component]];
 	
 	if(!longestString) {
 		longestString = labeltext;
@@ -58,7 +58,7 @@
 	// Update label if it doesn’t match current label
 	if (![theLabel.text isEqualToString:labeltext]) {
 		
-		NSString *keyName = [NSString stringWithFormat:@"%@_%@", @"longestString", [NSNumber numberWithInt:component]]; 
+		NSString *keyName = [NSString stringWithFormat:@"%@_%@", @"longestString", [NSNumber numberWithInteger:component]];
 		NSString *longestString = [labels objectForKey:keyName];
 		
 		// Update label array with our new string value
@@ -114,6 +114,10 @@
 			CGRect frame;
             NSDictionary *attributes = @{NSFontAttributeName: labelfont};
             frame.size = [longestString sizeWithAttributes:attributes];
+            NSLog(@"frame.size.height = %f", frame.size.height);
+            NSLog(@"frame.size.width = %f", frame.size.width);
+
+            
 			//frame.size = [longestString sizeWithFont:labelfont];
 			
 			// center it vertically 
@@ -121,8 +125,7 @@
 			
 			// align it to the right side of the wheel, with a margin.
 			// use a smaller margin for the rightmost wheel.
-			frame.origin.x = rightsideofwheel - frame.size.width -
-			(component == self.numberOfComponents - 1 ? 5 : 7);
+			frame.origin.x = rightsideofwheel - frame.size.width - (component == self.numberOfComponents - 1 ? 5 : 7);
 			
 			// set up the label. If label already exists, just get a reference to it
 			BOOL addlabelView = NO;
@@ -148,13 +151,16 @@
 				 kind of a hack to be honest, might stop working if Apple decides to 
 				 change the inner workings of the UIPickerView.
 				 */	 
-				if (self.showsSelectionIndicator) { 
+				if (self.showsSelectionIndicator) {
+                    [self insertSubview:label atIndex:[self.subviews count]-3];
+                    
+                    
 					// if this is the last wheel, add label as the third view from the top
-					if (component==self.numberOfComponents-1) 
-						[self insertSubview:label atIndex:[self.subviews count]-3];
-					// otherwise add label as the 5th, 10th, 15th etc view from the top
-					else
-						[self insertSubview:label aboveSubview:[self.subviews objectAtIndex:5*(component+1)]];
+//					if (component==self.numberOfComponents-1) 
+//						[self insertSubview:label atIndex:[self.subviews count]-3];
+//					// otherwise add label as the 5th, 10th, 15th etc view from the top
+//					else
+//						[self insertSubview:label aboveSubview:[self.subviews objectAtIndex:5*(component+1)]];
 				} else
 					// there is no selection indicator, so just add it to the top
 					[self addSubview:label];
