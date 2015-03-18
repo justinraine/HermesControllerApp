@@ -7,52 +7,32 @@
 //
 
 #import "TimeLapseModeSetTableViewController.h"
+#import "PositionViewController.h"
 
 int const kDurationSection = 0;
 int const kPositionSection = 1;
-int const kDampingSection = 2;
-int const kRepeatSection = 3;
-
-int const kDurationPickerCellRow = 1;
-int const kStartPositionSetCellRow = 1;
-int const kEndPositionSetCellRow = 3;
-int const kDampingSliderCellRow = 1;
+int const kOptionsSection = 2;
 
 @interface TimeLapseModeSetTableViewController ()
 
-@property (weak, nonatomic) IBOutlet UILabel *durationLabel;
-@property (weak, nonatomic) IBOutlet UITableViewCell *durationPickerCell;
-@property (weak, nonatomic) IBOutlet UIPickerView *durationPicker;
-
-@property (weak, nonatomic) IBOutlet UITableViewCell *startPositionSetCell;
-@property (weak, nonatomic) IBOutlet UIButton *startPositionSetButton;
-@property (weak, nonatomic) IBOutlet UIButton *startPositionLeftButton;
-@property (weak, nonatomic) IBOutlet UIButton *startPositionRightButton;
-
-@property (weak, nonatomic) IBOutlet UITableViewCell *endPositionSetCell;
-@property (weak, nonatomic) IBOutlet UIButton *endPositionSetButton;
-@property (weak, nonatomic) IBOutlet UIButton *endPositionLeftButton;
-@property (weak, nonatomic) IBOutlet UIButton *endPositionRightButton;
-
+@property (weak, nonatomic) IBOutlet UIBarButtonItem *nextButton;
+@property (weak, nonatomic) IBOutlet UIDatePicker *durationPicker;
 @property (weak, nonatomic) IBOutlet UILabel *dampingLabel;
-@property (weak, nonatomic) IBOutlet UITableViewCell *dampingSliderCell;
 @property (weak, nonatomic) IBOutlet UISlider *dampingSlider;
-
 @property (weak, nonatomic) IBOutlet UISwitch *repeatSwitch;
-
-@property BOOL durationPickerCellIsShowing;
-@property BOOL startPositionSetCellIsShowing;
-@property BOOL endPositionSetCellIsShowing;
-@property BOOL dampingSliderCellIsShowing;
+@property (weak, nonatomic) IBOutlet UILabel *startPositionStatusLabel;
+@property (weak, nonatomic) IBOutlet UILabel *endPositionStatusLabel;
 
 @end
+
 
 @implementation TimeLapseModeSetTableViewController
 
 - (void)viewDidLoad {
     [super viewDidLoad];
     
-    [self initializeTable];
+    // Set default durationPicker value
+    [self initializeDurationPicker];
     
     // Uncomment the following line to preserve selection between presentations.
     // self.clearsSelectionOnViewWillAppear = NO;
@@ -66,111 +46,61 @@ int const kDampingSliderCellRow = 1;
     // Dispose of any resources that can be recreated.
 }
 
-- (void)initializeTable {
-    self.startPositionSetButton.hidden = YES;
-    self.startPositionLeftButton.hidden = YES;
-    self.startPositionRightButton.hidden = YES;
-    self.endPositionSetButton.hidden = YES;
-    self.endPositionLeftButton.hidden = YES;
-    self.endPositionRightButton.hidden = YES;
-    self.dampingSlider.hidden = YES;
-    
-    self.durationPickerCellIsShowing = NO;
-    self.startPositionSetCellIsShowing = NO;
-    self.endPositionSetCellIsShowing = NO;
-    self.dampingSliderCellIsShowing = NO;
-    
-    self.tableView.tableFooterView = [[UIView alloc] initWithFrame:CGRectZero];
+- (void)initializeDurationPicker {
+    NSDateComponents *durationComponents = [[NSDateComponents alloc] init];
+    [durationComponents setHour:0]; // set hours
+    [durationComponents setMinute:5]; // set minutes
+    NSDate *defaultDuration = [[NSCalendar currentCalendar] dateFromComponents:durationComponents];
+    [self.durationPicker setDate:defaultDuration animated:TRUE];
 }
+
+
+#pragma mark - IBAction Methods
+
+- (IBAction)durationPickerDidChange:(id)sender {
+    NSDateFormatter *dateformatter = [[NSDateFormatter alloc] init];
+    [dateformatter setDateFormat:@"HH:mm"];
+    
+    //self.durationLabel.text = [dateformatter stringFromDate:[self.durationPicker date]];
+    NSLog(@"UI Action: duration changed to %@", [dateformatter stringFromDate:[self.durationPicker date]]);
+}
+
+- (IBAction)dampingSliderDidChange:(id)sender {
+    self.dampingLabel.text = [NSString stringWithFormat:@"%.f%%", self.dampingSlider.value*100];
+}
+
 
 #pragma mark - Table view data source
 
 // Configure tableView separator lines to display across whole view
 - (void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath
 {
+    // Remove seperator inset
     if ([cell respondsToSelector:@selector(setSeparatorInset:)]) {
         [cell setSeparatorInset:UIEdgeInsetsZero];
     }
     
+    // Prevent the cell from inheriting the Table View's margin settings
+    if ([cell respondsToSelector:@selector(setPreservesSuperviewLayoutMargins:)]) {
+        [cell setPreservesSuperviewLayoutMargins:NO];
+    }
+    
+    // Explictly set your cell's layout margins
     if ([cell respondsToSelector:@selector(setLayoutMargins:)]) {
         [cell setLayoutMargins:UIEdgeInsetsZero];
     }
 }
 
-- (void)viewDidLayoutSubviews
-{
-    if ([self.tableView respondsToSelector:@selector(setSeparatorInset:)]) {
-        [self.tableView setSeparatorInset:UIEdgeInsetsZero];
-    }
-    
-    if ([self.tableView respondsToSelector:@selector(setLayoutMargins:)]) {
-        [self.tableView setLayoutMargins:UIEdgeInsetsZero];
-    }
-}
 
 // Hide interactive cells by default
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
     CGFloat height;
     
-    if (indexPath.section == kDurationSection && indexPath.row == kDurationPickerCellRow) {
-        if (self.durationPickerCellIsShowing) {
-            height = 162.0f;
-        } else {
-            height = 0.0f;
-        }
-    } else if (indexPath.section == kPositionSection && indexPath.row == kStartPositionSetCellRow) {
-        if (self.startPositionSetCellIsShowing) {
-            height = 127.0;
-        } else {
-            height = 0.0f;
-        }
-    } else if (indexPath.section == kPositionSection && indexPath.row == kEndPositionSetCellRow) {
-        if (self.endPositionSetCellIsShowing) {
-            height = 127.0;
-        } else {
-            height = 0.0f;
-        }
-    } else if (indexPath.section == kDampingSection && indexPath.row == kDampingSliderCellRow) {
-        if (self.dampingSliderCellIsShowing) {
-            height = 44.0f;
-        } else {
-            height = 0.0f;
-        }
-    } else {
-        height = 44.0f;
-    }
-    
-    return height;
-}
-
-- (CGFloat)tableView:(UITableView *)tableView estimatedHeightForRowAtIndexPath:(NSIndexPath *)indexPath {
-    CGFloat height;
-    
-    if (indexPath.section == kDurationSection && indexPath.row == kDurationPickerCellRow) {
-        if (self.durationPickerCellIsShowing) {
-            height = 162.0f;
-        } else {
-            height = 0.0f;
-        }
-    } else if (indexPath.section == kPositionSection && indexPath.row == kStartPositionSetCellRow) {
-        if (self.startPositionSetCellIsShowing) {
-            height = 127.0;
-        } else {
-            height = 0.0f;
-        }
-    } else if (indexPath.section == kPositionSection && indexPath.row == kEndPositionSetCellRow) {
-        if (self.endPositionSetCellIsShowing) {
-            height = 127.0;
-        } else {
-            height = 0.0f;
-        }
-    } else if (indexPath.section == kDampingSection && indexPath.row == kDampingSliderCellRow) {
-        if (self.dampingSliderCellIsShowing) {
-            height = 44.0f;
-        } else {
-            height = 0.0f;
-        }
-    } else {
+    if (indexPath.section == kDurationSection) {
+        height = 162.0f;
+    } else if (indexPath.section == kOptionsSection && indexPath.row == 0) {
+        height = 83.0f;
+    }else {
         height = 44.0f;
     }
     
@@ -179,206 +109,33 @@ int const kDampingSliderCellRow = 1;
 
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-
-    if (indexPath.section == kDurationSection && indexPath.row == kDurationPickerCellRow-1) {
-        if (self.durationPickerCellIsShowing) {
-            [self hideDurationPickerCell];
-        } else {
-            if (self.startPositionSetCellIsShowing) {
-                [self hideStartPositionCell];
-            } else if (self.endPositionSetCellIsShowing) {
-                [self hideEndPositionCell];
-            } else if (self.dampingSliderCellIsShowing) {
-                [self hideDampingSliderCell];
-            }
-            
-            [self showDurationPickerCell];
-        }
-    } else if (indexPath.section == kPositionSection && indexPath.row == kStartPositionSetCellRow-1) {
-        if (self.startPositionSetCellIsShowing) {
-            [self hideStartPositionCell];
-        } else {
-            if (self.durationPickerCellIsShowing) {
-                [self hideDurationPickerCell];
-            } else if (self.endPositionSetCellIsShowing) {
-                [self hideEndPositionCell];
-            } else if (self.dampingSliderCellIsShowing) {
-                [self hideDampingSliderCell];
-            }
-            
-            [self showStartPositionCell];
-        }
-    } else if (indexPath.section == kPositionSection && indexPath.row == kEndPositionSetCellRow-1) {
-        if (self.endPositionSetCellIsShowing) {
-            [self hideEndPositionCell];
-        } else {
-            if (self.durationPickerCellIsShowing) {
-                [self hideDurationPickerCell];
-            } else if (self.startPositionSetCellIsShowing) {
-                [self hideStartPositionCell];
-            } else if (self.dampingSliderCellIsShowing) {
-                [self hideDampingSliderCell];
-            }
-            
-            [self showEndPositionCell];
-        }
-    } else if (indexPath.section == kDampingSection && indexPath.row == kDampingSliderCellRow-1) {
-        if (self.dampingSliderCellIsShowing) {
-            [self hideDampingSliderCell];
-        } else {
-            if (self.durationPickerCellIsShowing) {
-                [self hideDurationPickerCell];
-            } else if (self.startPositionSetCellIsShowing) {
-                [self hideStartPositionCell];
-            } else if (self.endPositionSetCellIsShowing) {
-                [self hideEndPositionCell];
-            }
-            
-            [self showDampingSliderCell];
+    if (indexPath.section == kPositionSection) {
+        UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"Main" bundle:nil];
+        PositionViewController *positionViewController = [storyboard instantiateViewControllerWithIdentifier:@"positionViewController"];
+        [positionViewController setModalPresentationStyle:UIModalPresentationFullScreen];
+        
+        if (indexPath.row == 0) {
+            positionViewController.customMessage = @"Move the camera to the desired start position and press Set.";
+            [self.navigationController presentViewController:positionViewController animated:YES completion:^{
+                self.startPositionStatusLabel.text = @"Set";
+                if ([self.startPositionStatusLabel.text isEqual: @"Set"] && [self.endPositionStatusLabel.text isEqual: @"Set"]) {
+                    self.nextButton.enabled = YES;
+                }
+            }];
+        } else if (indexPath.row == 1) {
+            positionViewController.customMessage = @"Move the camera to the desired end position and press Set.";
+            [self.navigationController presentViewController:positionViewController animated:YES completion:^{
+                self.endPositionStatusLabel.text = @"Set";
+                if ([self.startPositionStatusLabel.text isEqual: @"Set"] && [self.endPositionStatusLabel.text isEqual: @"Set"]) {
+                    self.nextButton.enabled = YES;
+                }
+            }];
         }
     }
     
     [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
 }
 
-#pragma mark - Cell Show/Hide Methods
-
-- (void)hideDurationPickerCell {
-    self.durationPickerCellIsShowing = NO;
-    
-    [self.tableView beginUpdates];
-    [self.tableView endUpdates];
-    
-    [UIView animateWithDuration:0.25 animations:^{
-        self.durationPicker.alpha = 0.0f;
-    } completion:^(BOOL finished){
-        self.durationPicker.hidden = YES;
-    }];
-}
-
-
-- (void)showDurationPickerCell {
-    self.durationPickerCellIsShowing = YES;
-    
-    [self.tableView beginUpdates];
-    [self.tableView endUpdates];
-    
-    self.durationPicker.hidden = NO;
-    self.durationPicker.alpha = 0.0f;
-    
-    [UIView animateWithDuration:0.25 animations:^{
-        self.durationPicker.alpha = 1.0f;
-    }];
-}
-
-
-- (void)hideStartPositionCell {
-    self.startPositionSetCellIsShowing = NO;
-    
-    [self.tableView beginUpdates];
-    [self.tableView endUpdates];
-    
-    [UIView animateWithDuration:0.25 animations:^{
-        self.startPositionSetButton.alpha = 0.0f;
-        self.startPositionLeftButton.alpha = 0.0f;
-        self.startPositionRightButton.alpha = 0.0f;
-    } completion:^(BOOL finished){
-        self.startPositionSetButton.hidden = YES;
-        self.startPositionLeftButton.hidden = YES;
-        self.startPositionRightButton.hidden = YES;
-    }];
-}
-
-
-- (void)showStartPositionCell {
-    self.startPositionSetCellIsShowing = YES;
-    
-    [self.tableView beginUpdates];
-    [self.tableView endUpdates];
-    
-    self.startPositionSetButton.hidden = NO;
-    self.startPositionLeftButton.hidden = NO;
-    self.startPositionRightButton.hidden = NO;
-    
-    self.startPositionSetButton.alpha = 0.0f;
-    self.startPositionLeftButton.alpha = 0.0f;
-    self.startPositionRightButton.alpha = 0.0f;
-    
-    [UIView animateWithDuration:0.25 animations:^{
-        self.startPositionSetButton.alpha = 1.0f;
-        self.startPositionLeftButton.alpha = 1.0f;
-        self.startPositionRightButton.alpha = 1.0f;
-    }];
-}
-
-
-- (void)hideEndPositionCell {
-    self.endPositionSetCellIsShowing = NO;
-    
-    [self.tableView beginUpdates];
-    [self.tableView endUpdates];
-    
-    [UIView animateWithDuration:0.25 animations:^{
-        self.endPositionSetButton.alpha = 0.0f;
-        self.endPositionLeftButton.alpha = 0.0f;
-        self.endPositionRightButton.alpha = 0.0f;
-    } completion:^(BOOL finished){
-        self.endPositionSetButton.hidden = YES;
-        self.endPositionLeftButton.hidden = YES;
-        self.endPositionRightButton.hidden = YES;
-    }];
-}
-
-
-- (void)showEndPositionCell {
-    self.endPositionSetCellIsShowing = YES;
-    
-    [self.tableView beginUpdates];
-    [self.tableView endUpdates];
-    
-    self.endPositionSetButton.hidden = NO;
-    self.endPositionLeftButton.hidden = NO;
-    self.endPositionRightButton.hidden = NO;
-    
-    self.endPositionSetButton.alpha = 0.0f;
-    self.endPositionLeftButton.alpha = 0.0f;
-    self.endPositionRightButton.alpha = 0.0f;
-    
-    [UIView animateWithDuration:0.25 animations:^{
-        self.endPositionSetButton.alpha = 1.0f;
-        self.endPositionLeftButton.alpha = 1.0f;
-        self.endPositionRightButton.alpha = 1.0f;
-    }];
-}
-
-
-- (void)hideDampingSliderCell {
-    self.dampingSliderCellIsShowing = NO;
-    
-    [self.tableView beginUpdates];
-    [self.tableView endUpdates];
-    
-    [UIView animateWithDuration:0.25 animations:^{
-        self.dampingSlider.alpha = 0.0f;
-    } completion:^(BOOL finished){
-        self.dampingSlider.hidden = YES;
-    }];
-}
-
-
-- (void)showDampingSliderCell {
-    self.dampingSliderCellIsShowing = YES;
-    
-    [self.tableView beginUpdates];
-    [self.tableView endUpdates];
-    
-    self.dampingSlider.hidden = NO;
-    self.dampingSlider.alpha = 0.0f;
-    
-    [UIView animateWithDuration:0.25 animations:^{
-        self.dampingSlider.alpha = 1.0f;
-    }];
-}
 
 /*
 #pragma mark - Navigation

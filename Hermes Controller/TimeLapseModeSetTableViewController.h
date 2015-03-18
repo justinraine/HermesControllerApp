@@ -7,7 +7,8 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "PositionViewController.h"
 
-@interface TimeLapseModeSetTableViewController : UITableViewController
+@interface TimeLapseModeSetTableViewController : UITableViewController <UIPickerViewDelegate>
 
 @end

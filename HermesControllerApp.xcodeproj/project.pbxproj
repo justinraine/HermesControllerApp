@@ -23,6 +23,7 @@
 		D05DD6B01AAF8CE10088AF10 /* HermesControllerManager.m in Sources */ = {isa = PBXBuildFile; fileRef = D05DD6AF1AAF8CE10088AF10 /* HermesControllerManager.m */; };
 		D05DD6B31AB0D4130088AF10 /* BLEInterface.m in Sources */ = {isa = PBXBuildFile; fileRef = D05DD6B21AB0D4130088AF10 /* BLEInterface.m */; };
 		D0751F9B1AACF03600439377 /* LiveModeViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D0751F9A1AACF03600439377 /* LiveModeViewController.m */; };
+		D0F234701AB7DBF600E6D609 /* PositionViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D0F2346F1AB7DBF600E6D609 /* PositionViewController.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -68,6 +69,8 @@
 		D05DD6B21AB0D4130088AF10 /* BLEInterface.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BLEInterface.m; sourceTree = "<group>"; };
 		D0751F991AACF03600439377 /* LiveModeViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LiveModeViewController.h; sourceTree = "<group>"; };
 		D0751F9A1AACF03600439377 /* LiveModeViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LiveModeViewController.m; sourceTree = "<group>"; };
+		D0F2346E1AB7DBF600E6D609 /* PositionViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PositionViewController.h; sourceTree = "<group>"; };
+		D0F2346F1AB7DBF600E6D609 /* PositionViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PositionViewController.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -180,6 +183,8 @@
 				D03958651AB4F6E0001F6A4D /* TimeLapseModeSetTableViewController.m */,
 				D03958611AB4F609001F6A4D /* TimeLapseModeReviewViewController.h */,
 				D03958621AB4F609001F6A4D /* TimeLapseModeReviewViewController.m */,
+				D0F2346E1AB7DBF600E6D609 /* PositionViewController.h */,
+				D0F2346F1AB7DBF600E6D609 /* PositionViewController.m */,
 			);
 			name = Controller;
 			sourceTree = "<group>";
@@ -297,6 +302,7 @@
 				D0751F9B1AACF03600439377 /* LiveModeViewController.m in Sources */,
 				D05DD6A31AAE82710088AF10 /* Constants.m in Sources */,
 				D05DD6B01AAF8CE10088AF10 /* HermesControllerManager.m in Sources */,
+				D0F234701AB7DBF600E6D609 /* PositionViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
