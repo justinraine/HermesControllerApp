@@ -1,23 +1,22 @@
 //
-//  TimeLapseModeReviewViewController.m
+//  ConnectionHelperViewController.m
 //  HermesControllerApp
 //
-//  Created by Justin Raine on 2015-03-14.
+//  Created by Woody Allen on 2015-03-17.
 //  Copyright (c) 2015 vitaMotu. All rights reserved.
 //
 
-#import "TimeLapseModeReviewViewController.h"
+#import "ConnectionHelperViewController.h"
 
-@interface TimeLapseModeReviewViewController ()
+@interface ConnectionHelperViewController ()
 
 @end
 
-@implementation TimeLapseModeReviewViewController
+@implementation ConnectionHelperViewController
 
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
-    self.view.backgroundColor = [[UIColor alloc] initWithRed:1 green:1 blue:1 alpha:1];
 }
 
 - (void)didReceiveMemoryWarning {

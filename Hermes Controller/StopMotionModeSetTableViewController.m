@@ -1,39 +1,40 @@
 //
-//  TimeLapseModeSetTableViewController.m
+//  StopMotionModeSetTableViewController.m
 //  HermesControllerApp
 //
-//  Created by Justin Raine on 2015-03-14.
+//  Created by Woody Allen on 2015-03-17.
 //  Copyright (c) 2015 vitaMotu. All rights reserved.
 //
 
-#import "TimeLapseModeSetTableViewController.h"
+#import "StopMotionModeSetTableViewController.h"
 #import "PositionViewController.h"
 
-static const int kDurationSection = 0;
-static const int kPositionSection = 1;
-static const int kOptionsSection = 2;
+static const int kCaptureDurationSection = 0;
+static const int kPlaybackDurationSection = 1;
+static const int kPositionSection = 2;
+static const int kOptionsSection = 3;
 
 
-@interface TimeLapseModeSetTableViewController ()
+@interface StopMotionModeSetTableViewController ()
 
 @property (weak, nonatomic) IBOutlet UIBarButtonItem *nextButton;
 @property (weak, nonatomic) IBOutlet UIDatePicker *captureDurationPicker;
+@property (weak, nonatomic) IBOutlet UIDatePicker *playbackDurationPicker;
 @property (weak, nonatomic) IBOutlet UILabel *startPositionStatusLabel;
 @property (weak, nonatomic) IBOutlet UILabel *endPositionStatusLabel;
 @property (weak, nonatomic) IBOutlet UILabel *dampingLabel;
 @property (weak, nonatomic) IBOutlet UISlider *dampingSlider;
-@property (weak, nonatomic) IBOutlet UISwitch *repeatSwitch;
 
 @end
 
 
-@implementation TimeLapseModeSetTableViewController
+@implementation StopMotionModeSetTableViewController
 
 - (void)viewDidLoad {
     [super viewDidLoad];
     
-    // Set default durationPicker value
-    [self initializeDurationPicker];
+    // Set default Capture Duration and Playback Duration values
+    [self initializeDurationPickers];
 }
 
 - (void)didReceiveMemoryWarning {
@@ -41,30 +42,27 @@ static const int kOptionsSection = 2;
     // Dispose of any resources that can be recreated.
 }
 
-- (void)initializeDurationPicker {
+- (void)initializeDurationPickers {
     NSDateComponents *durationComponents = [[NSDateComponents alloc] init];
-    [durationComponents setHour:0]; // set hours
-    [durationComponents setMinute:5]; // set minutes
+    
+    // Set Capture Duration value
+    [durationComponents setHour:1]; // set hours
+    [durationComponents setMinute:0]; // set minutes
     NSDate *defaultDuration = [[NSCalendar currentCalendar] dateFromComponents:durationComponents];
     [self.captureDurationPicker setDate:defaultDuration animated:TRUE];
+    
+    // Set Playback Duration value
+    [durationComponents setHour:10]; // set hours
+    [durationComponents setMinute:0]; // set minutes
+    defaultDuration = [[NSCalendar currentCalendar] dateFromComponents:durationComponents];
+    [self.playbackDurationPicker setDate:defaultDuration animated:TRUE];
 }
-
-
 
 #pragma mark - IBAction Methods
-
-- (IBAction)processUpdatedCaptureDuration:(id)sender {
-    NSDateFormatter *dateformatter = [[NSDateFormatter alloc] init];
-    [dateformatter setDateFormat:@"HH:mm"];
-    
-    //self.durationLabel.text = [dateformatter stringFromDate:[self.durationPicker date]];
-    NSLog(@"UI Action: duration changed to %@", [dateformatter stringFromDate:[self.captureDurationPicker date]]);
-}
 
 - (IBAction)updateDampingLabel:(id)sender {
     self.dampingLabel.text = [NSString stringWithFormat:@"%.f%%", self.dampingSlider.value*100];
 }
-
 
 
 #pragma mark - Table View Delegate Methods
@@ -90,9 +88,9 @@ static const int kOptionsSection = 2;
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
     CGFloat height;
     
-    if (indexPath.section == kDurationSection) {
+    if (indexPath.section == kCaptureDurationSection || indexPath.section == kPlaybackDurationSection) {
         height = 162.0f;
-    } else if (indexPath.section == kOptionsSection && indexPath.row == 0) {
+    } else if (indexPath.section == kOptionsSection) {
         height = 83.0f;
     }else {
         height = 44.0f;
@@ -100,7 +98,6 @@ static const int kOptionsSection = 2;
     
     return height;
 }
-
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     if (indexPath.section == kPositionSection) {
@@ -129,7 +126,6 @@ static const int kOptionsSection = 2;
     
     [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
 }
-
 
 /*
 #pragma mark - Navigation
