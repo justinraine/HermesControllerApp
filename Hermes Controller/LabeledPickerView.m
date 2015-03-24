@@ -41,7 +41,7 @@
 - (void) addLabel:(NSString *)labeltext forComponent:(NSUInteger)component forLongestString:(NSString *)longestString {
 	[labels setObject:labeltext forKey:[NSNumber numberWithInteger:component]];
 	
-	NSString *keyName = [NSString stringWithFormat:@"%@_%@", @"longestString", [NSNumber numberWithInteger:component]];
+	NSString *keyName = [NSString stringWithFormat:@"longestString_%@", [NSNumber numberWithInteger:component]];
 	
 	if(!longestString) {
 		longestString = labeltext;
@@ -58,7 +58,7 @@
 	// Update label if it doesn’t match current label
 	if (![theLabel.text isEqualToString:labeltext]) {
 		
-		NSString *keyName = [NSString stringWithFormat:@"%@_%@", @"longestString", [NSNumber numberWithInteger:component]];
+		NSString *keyName = [NSString stringWithFormat:@"longestString_%@", [NSNumber numberWithInteger:component]];
 		NSString *longestString = [labels objectForKey:keyName];
 		
 		// Update label array with our new string value
@@ -73,7 +73,6 @@
 		theLabel.alpha = 1.00;
 		[UIView commitAnimations];
 	}
-	
 }
 
 /** 
@@ -83,10 +82,9 @@
  */
 - (void)didMoveToWindow {
 	// exit if view is removed from the window or there are no labels.
-	if (!self.window || [labels count] == 0)
-		return;
-	
-	UIFont *labelfont = [UIFont boldSystemFontOfSize:20];
+    if (!self.window || [labels count] == 0) {
+        return;
+    }
 	
 	// find the width of all the wheels combined 
 	CGFloat widthofwheels = 0;
@@ -111,15 +109,14 @@
 			// set up the frame for the label using our longestString length
 			NSString *keyName = [NSString stringWithFormat:@"longestString_%@", [NSNumber numberWithInt:component]];
 			NSString *longestString = [labels objectForKey:keyName];
+            
 			CGRect frame;
+            UIFont *labelfont = [UIFont boldSystemFontOfSize:20];
             NSDictionary *attributes = @{NSFontAttributeName: labelfont};
             frame.size = [longestString sizeWithAttributes:attributes];
-            NSLog(@"frame.size.height = %f", frame.size.height);
-            NSLog(@"frame.size.width = %f", frame.size.width);
+            NSLog(@"Component %d Label: frame.size.height = %f", component,frame.size.height);
+            NSLog(@"Component %d Label: frame.size.width = %f", component, frame.size.width);
 
-            
-			//frame.size = [longestString sizeWithFont:labelfont];
-			
 			// center it vertically 
 			frame.origin.y = (self.frame.size.height / 2) - (frame.size.height / 2) - 0.5;
 			
@@ -146,33 +143,14 @@
 			label.tag = component + 1;
 			
 			if(addlabelView) {
-				/* 
-				 and now for the tricky bit: adding the label to the view.
-				 kind of a hack to be honest, might stop working if Apple decides to 
-				 change the inner workings of the UIPickerView.
-				 */	 
-				if (self.showsSelectionIndicator) {
-                    [self insertSubview:label atIndex:[self.subviews count]-3];
-                    
-                    
-					// if this is the last wheel, add label as the third view from the top
-//					if (component==self.numberOfComponents-1) 
-//						[self insertSubview:label atIndex:[self.subviews count]-3];
-//					// otherwise add label as the 5th, 10th, 15th etc view from the top
-//					else
-//						[self insertSubview:label aboveSubview:[self.subviews objectAtIndex:5*(component+1)]];
-				} else
-					// there is no selection indicator, so just add it to the top
-					[self addSubview:label];
-				
+				[self insertSubview:label atIndex:[self.subviews count]-3];
 			}
 			
-			if ([self.delegate respondsToSelector:@selector(pickerView:didSelectRow:inComponent:)])
-				[self.delegate pickerView:self didSelectRow:[self selectedRowInComponent:component] inComponent:component];
+            if ([self.delegate respondsToSelector:@selector(pickerView:didSelectRow:inComponent:)]) {
+                [self.delegate pickerView:self didSelectRow:[self selectedRowInComponent:component] inComponent:component];
+            }
 		}
-		
-	}
-	
+    }
 }
 
 @end

@@ -20,7 +20,7 @@ typedef NS_ENUM(NSUInteger, ControllerStatus) {
     kBluetoothNotPoweredOn,
 };
 
-@interface HermesControllerManager : NSObject <BLEInterfaceDelegateProtocol>
+@interface VMHHermesControllerManager : NSObject <BLEInterfaceDelegateProtocol>
 
 // Public Properties
 @property (strong, nonatomic) NSMutableArray *discoveredHermesControllers;
@@ -28,14 +28,28 @@ typedef NS_ENUM(NSUInteger, ControllerStatus) {
 
 
 // Public Methods
-+ (HermesControllerManager *)sharedInstance;
+
+// Utility Methods
++ (VMHHermesControllerManager *)sharedInstance;
 - (void)scanForHermesController;
 - (void)endScanForHermesController;
 //- (void)continueScanForHermesController;
 - (void)connectToHermesController:(CBPeripheral *)peripheral;
 - (CBPeripheral *)getConnectedHermesController;
 - (void)sendCommand:(NSString *)command;
-- (void)beginRecording;
-- (void)stopRecording;
 
+// Operational Methods
+- (void)beginRecording;
+- (void)endRecording;
+- (void)moveLeftWithSpeed:(NSInteger)speed;
+- (void)moveRightWithSpeed:(NSInteger)speed;
+- (void)beginTimeLapseWithDuration:(NSInteger)durationSeconds
+                     startPosition:(NSInteger)start
+                       endPosition:(NSInteger)end
+                           damping:(NSInteger)damping
+                              loop:(BOOL)loop;
+- (void)beginStopMotionWithInterval:(NSInteger)intervalSeconds
+                      startPosition:(NSInteger)start
+                        endPosition:(NSInteger)end
+                            damping:(NSInteger)damping;
 @end

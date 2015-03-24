@@ -31,7 +31,8 @@
 }
 
 - (IBAction)setPosition:(id)sender {
-    NSLog(@"Position set ** Not Impemented **");
+    self.currentPosition = arc4random() % 3000;
+    NSLog(@"Position set: %d ** Dummy Value **", self.currentPosition);
     [self dismissViewControllerAnimated:YES completion:nil];
 }
 

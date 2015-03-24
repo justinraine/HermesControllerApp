@@ -10,7 +10,7 @@
 #import "MBProgressHUD.h"
 #import "Constants.h"
 //#import "BluetoothInterface.h"
-#import "HermesControllerManager.h"
+#import "VMHHermesControllerManager.h"
 #import "BLEInterface.h"
 
 NS_ENUM(NSInteger, alertTag) {
@@ -49,16 +49,16 @@ NS_ENUM(NSInteger, alertTag) {
     [self.navigationController.view addSubview:self.HUD];
     
     // Setup KVO notifications from HermesControllerManager
-    [[HermesControllerManager sharedInstance] addObserver:self
+    [[VMHHermesControllerManager sharedInstance] addObserver:self
                                                forKeyPath:@"status"
                                                   options:0
                                                   context:nil];
-    [[HermesControllerManager sharedInstance] addObserver:self
+    [[VMHHermesControllerManager sharedInstance] addObserver:self
                                                forKeyPath:@"discoveredHermesControllers"
                                                   options:0 //*** what about comparing old vs new values for differences instead of using ignoredHermesControllers?
                                                   context:nil];
     
-    [[HermesControllerManager sharedInstance] scanForHermesController];
+    [[VMHHermesControllerManager sharedInstance] scanForHermesController];
 }
 
 
@@ -90,7 +90,7 @@ NS_ENUM(NSInteger, alertTag) {
             self.recordButton.backgroundColor = [UIColor colorWithRed:193.0/255.0 green:5.0/255.0 blue:46.0/255.0 alpha:1];
             //self.isRecording = YES;
             
-            [[HermesControllerManager sharedInstance] beginRecording];
+            [[VMHHermesControllerManager sharedInstance] beginRecording];
         } else if ([self.recordButton.titleLabel.text isEqualToString:@"Stop"]) {
             NSLog(@"Stop button tapped -- Send command to Arduino to stop recording");
             
@@ -98,7 +98,7 @@ NS_ENUM(NSInteger, alertTag) {
             self.recordButton.backgroundColor = [UIColor colorWithRed:0.0 green:122.0/255.0 blue:1.0 alpha:1.0];
             //self.isRecording = NO;
             
-            [[HermesControllerManager sharedInstance] stopRecording];
+            [[VMHHermesControllerManager sharedInstance] endRecording];
         }
     } else if (sender == self.leftButton) {
         NSLog(@"Left button tapped -- Send command to Arduino to move left");
@@ -120,7 +120,7 @@ NS_ENUM(NSInteger, alertTag) {
                         change:(NSDictionary *)change
                        context:(void *)context {
     if ([keyPath isEqualToString:@"status"]) {
-        [self handleUpdatedStatus:[HermesControllerManager sharedInstance].status];
+        [self handleUpdatedStatus:[VMHHermesControllerManager sharedInstance].status];
     }
     else if([keyPath isEqualToString:@"discoveredHermesControllers"]) {
         [self handleUpdatedHermesControllerArray];
@@ -222,7 +222,7 @@ NS_ENUM(NSInteger, alertTag) {
 - (void)handleUpdatedHermesControllerArray {
     // hermesControllerArray is an array of dictionaries, one for each discovered CBPeripheral
     // Each dictionary contains all received scan properties with keys: peripheral, advertisementData, RSSI
-    NSArray *hermesControllerArray = [HermesControllerManager sharedInstance].discoveredHermesControllers;
+    NSArray *hermesControllerArray = [VMHHermesControllerManager sharedInstance].discoveredHermesControllers;
     
     for (id hermesController in hermesControllerArray) {
         CBPeripheral *discoveredController = [hermesController objectForKey:@"peripheral"];
@@ -239,8 +239,8 @@ NS_ENUM(NSInteger, alertTag) {
             
             self.potentialHermesController = discoveredController;
             
-            if ([HermesControllerManager sharedInstance].status == kScanning) {
-                [[HermesControllerManager sharedInstance] endScanForHermesController]; // stop scan during UI interaction
+            if ([VMHHermesControllerManager sharedInstance].status == kScanning) {
+                [[VMHHermesControllerManager sharedInstance] endScanForHermesController]; // stop scan during UI interaction
                 [self.HUD hide:YES];
             }
             
@@ -254,21 +254,21 @@ NS_ENUM(NSInteger, alertTag) {
 // Alert response handler function
 - (void)alertView:(UIAlertView *)alertView didDismissWithButtonIndex:(NSInteger)buttonIndex {
     if (alertView.tag == kTimeoutTag) {
-        [[HermesControllerManager sharedInstance] scanForHermesController];
+        [[VMHHermesControllerManager sharedInstance] scanForHermesController];
     }
     else if (alertView.tag == kHermesControllerFoundTag) {
         if (buttonIndex==alertView.cancelButtonIndex) {
             [self.ignoredHermesControllers addObject:self.potentialHermesController];
             self.potentialHermesController = nil;
             
-            [[HermesControllerManager sharedInstance] scanForHermesController]; // continue scanning
+            [[VMHHermesControllerManager sharedInstance] scanForHermesController]; // continue scanning
             [self.HUD show:YES]; // Show scanning HUD again
         } else {
-            [[HermesControllerManager sharedInstance] connectToHermesController:self.potentialHermesController];
+            [[VMHHermesControllerManager sharedInstance] connectToHermesController:self.potentialHermesController];
         }
     }
     else if (alertView.tag == kConnectionFailedTag) {
-        [[HermesControllerManager sharedInstance] connectToHermesController:self.potentialHermesController];
+        [[VMHHermesControllerManager sharedInstance] connectToHermesController:self.potentialHermesController];
     }
 }
 

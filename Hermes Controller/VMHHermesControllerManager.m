@@ -1,16 +1,17 @@
 //
-//  HermesControllerManager.m
-//  HermesController
+//  VMHHermesControllerManager.m
+//  VMHHermesController
 //
 //  Created by Justin Raine on 2015-03-10.
 //  Copyright (c) 2015 vitaMotu. All rights reserved.
 //
 
-#import "HermesControllerManager.h"
+#import "VMHHermesControllerManager.h"
 #import "Constants.h"
 #import "BLEInterface.h"
+#import "VMHPacket.h"
 
-@interface HermesControllerManager()
+@interface VMHHermesControllerManager()
 
 @property (strong, nonatomic) BLEInterface *BLEInterface;
 @property ControllerStatus status;
@@ -19,9 +20,9 @@
 @end
 
 
-@implementation HermesControllerManager
+@implementation VMHHermesControllerManager
 
-static int scanTimeoutSecond = 5; // CBCentralManager scan timeout duration
+static int scanTimeoutSecond = 15; // CBCentralManager scan timeout duration
 //@synthesize status;
 
 - (id)init {
@@ -30,16 +31,17 @@ static int scanTimeoutSecond = 5; // CBCentralManager scan timeout duration
     if (self) {
         self.BLEInterface = [[BLEInterface alloc] initWithDelegate:self];
         self.status = kIdle; //*** necessary?
+        self.discoveredHermesControllers = [NSMutableArray array];
     }
     
     return self;
 }
 
 
-#pragma mark - Public Methods
+#pragma mark - Utility Methods
 
-+ (HermesControllerManager *)sharedInstance {
-    static HermesControllerManager *sharedInstance;
++ (VMHHermesControllerManager *)sharedInstance {
+    static VMHHermesControllerManager *sharedInstance;
     static dispatch_once_t onceToken;
     
     dispatch_once(&onceToken, ^{
@@ -119,7 +121,15 @@ static int scanTimeoutSecond = 5; // CBCentralManager scan timeout duration
 }
 
 
+
+#pragma mark - Operational Methods
+
 - (void)beginRecording {
+    VMHPacket *packet = [[VMHPacket alloc] init];
+    [packet configureLiveModeMoveRightPacketWithSpeed:80];
+    [packet printPacket];
+    [packet dataFormat];
+    
     if (self.status == kConnected) {
         [self.BLEInterface writeValue:kUARTServiceUUIDInt
                    characteristicUUID:kTransmitCharacteristicUUIDInt
@@ -129,7 +139,7 @@ static int scanTimeoutSecond = 5; // CBCentralManager scan timeout duration
 }
 
 
-- (void)stopRecording {
+- (void)endRecording {
     if (self.status == kConnected) {
         [self.BLEInterface writeValue:kUARTServiceUUIDInt
                    characteristicUUID:kTransmitCharacteristicUUIDInt
@@ -139,18 +149,76 @@ static int scanTimeoutSecond = 5; // CBCentralManager scan timeout duration
 }
 
 
+-(void)moveLeftWithSpeed:(NSInteger)speed {
+    
+}
 
-#pragma mark – Create Command Methods
+
+-(void)moveRightWithSpeed:(NSInteger)speed {
+    
+}
+
+
+-(void)beginTimeLapseWithDuration:(NSInteger)durationSeconds startPosition:(NSInteger)start endPosition:(NSInteger)end damping:(NSInteger)damping loop:(BOOL)loop {
+    
+}
+
+
+-(void)beginStopMotionWithInterval:(NSInteger)intervalSeconds startPosition:(NSInteger)start endPosition:(NSInteger)end damping:(NSInteger)damping {
+    
+}
+
 
 - (NSData *)createRecordStartCommand {
     NSString *recordCommand = @"Start the recording!";
     return [recordCommand dataUsingEncoding:NSUTF8StringEncoding];
 }
 
+
 - (NSData *)createRecordStopCommand {
     NSString *recordCommand = @"Stop recording dummy";
     return [recordCommand dataUsingEncoding:NSUTF8StringEncoding];
 }
+
+
+#pragma mark - Packet Creation Methods
+
+//- (void)createLiveModeBeginRecordingPacket:(char *)packet {
+//    packet[19] = JRLiveMode;
+//    packet[18] = JRBeginRecording;
+//    for (int i = 0; i < 18; i++) {
+//        packet[i] = JRZeroPadding;
+//    }
+//}
+//
+//
+//- (void)createLiveModeEndRecordingPacket:(char *)packet {
+//    packet[19] = JRLiveMode;
+//    packet[18] = JREndRecording;
+//    for (int i = 0; i < 18; i++) {
+//        packet[i] = JRZeroPadding;
+//    }
+//}
+//
+//
+//- (void)createMoveLeftPacket:(char *)packet speed:(int)speed {
+//    packet[19] = JRLiveMode;
+//    packet[18] = JRMoveLeft;
+//    packet[17] = speed;
+//    for (int i = 0; i < 17; i++) {
+//        packet[i] = JRZeroPadding;
+//    }
+//}
+//
+//
+//- (void)createMoveRightPacket:(char *)packet speed:(int)speed {
+//    packet[19] = JRLiveMode;
+//    packet[18] = JRMoveRight;
+//    packet[17] = speed;
+//    for (int i = 0; i < 17; i++) {
+//        packet[i] = JRZeroPadding;
+//    }
+//}
 
 
 
@@ -183,7 +251,9 @@ static int scanTimeoutSecond = 5; // CBCentralManager scan timeout duration
                                                 @"RSSI"              : RSSI};
     
     // Add to discoveredHermesControllers -> KVO notification triggers user prompt to connect
+    [self willChange:NSKeyValueChangeInsertion valuesAtIndexes:0 forKey:@"discoveredHermesControllers"]; //*** Manual invokation of KVO notifications.  Does it work?!
     [self.discoveredHermesControllers insertObject:newlyDiscoveredPeripheral atIndex:0];
+    [self didChange:NSKeyValueChangeInsertion valuesAtIndexes:0 forKey:@"discoveredHermesControllers"]; //***
 }
 
 -(void)BLEInterface:(BLEInterface *)BLEInterface willConnectToPeripheral:(CBPeripheral *)peripheral {

@@ -7,7 +7,7 @@
 //
 
 #import "BLEInterface.h"
-#import "HermesControllerManager.h"
+#import "VMHHermesControllerManager.h"
 
 @interface BLEInterface()
 
@@ -72,7 +72,8 @@ static BLEInterface * _sharedBLEAdapter = nil;
             [self.delegate BLEInterfaceWillScanForPeripherals:self];
         }
         
-        [self.centralManager scanForPeripheralsWithServices:services options:nil];
+        //[self.centralManager scanForPeripheralsWithServices:services options:nil];
+        [self.centralManager scanForPeripheralsWithServices:nil options:nil];
     } else {
         NSLog(@"Could not complete scan request. Request queued. Bluetooth state: %d (%s)",
               (int)self.centralManager.state, [self centralManagerStateToString:self.centralManager.state]);
@@ -808,6 +809,8 @@ static BLEInterface * _sharedBLEAdapter = nil;
 
 - (void)centralManager:(CBCentralManager *)central didDiscoverPeripheral:(CBPeripheral *)peripheral
      advertisementData:(NSDictionary *)advertisementData RSSI:(NSNumber *)RSSI {
+    NSLog(@"didDiscoverPeripheral");
+    
     if ([self.delegate respondsToSelector:@selector(BLEInterface:didDiscoverPeripheral:advertisementData:RSSI:)]) {
         [self.delegate BLEInterface:self didDiscoverPeripheral:peripheral advertisementData:advertisementData RSSI:RSSI];
     }

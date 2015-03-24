@@ -23,7 +23,7 @@
 }
 
 /** Adds the label for the given component. */
-- (void) addLabel:(NSString *)labeltext forComponent:(NSUInteger)component forLongestString:(NSString *)longestString;
-- (void) updateLabel:(NSString *)labeltext forComponent:(NSUInteger)component;
+- (void)addLabel:(NSString *)labeltext forComponent:(NSUInteger)component forLongestString:(NSString *)longestString;
+- (void)updateLabel:(NSString *)labeltext forComponent:(NSUInteger)component;
 
 @end

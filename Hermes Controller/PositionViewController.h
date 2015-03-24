@@ -11,5 +11,6 @@
 @interface PositionViewController : UIViewController
 
 @property (strong, nonatomic) NSString *customMessage;
+@property int currentPosition;
 
 @end
