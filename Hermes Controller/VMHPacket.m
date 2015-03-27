@@ -34,7 +34,7 @@ const int kParam5Position = 9;
 
 @interface VMHPacket()
 
-@property (strong, nonatomic) NSMutableArray *data;
+@property (nonatomic, strong) NSMutableArray *data;
 
 @end
 
@@ -67,6 +67,13 @@ const int kParam5Position = 9;
     
     NSLog(@"Command Packet: %@\n\n", packetString);
 }
+
+
+//- (void)printPacketPretty {
+//    NSLog(@"\n\n*** Packet ***\n\n");
+//    NSLog(@"Mode: )
+//    
+//}
 
 
 - (NSData *)dataFormat {

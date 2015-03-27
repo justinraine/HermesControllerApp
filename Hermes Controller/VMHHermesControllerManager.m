@@ -13,7 +13,7 @@
 
 @interface VMHHermesControllerManager()
 
-@property (strong, nonatomic) BLEInterface *BLEInterface;
+@property (nonatomic, strong) BLEInterface *BLEInterface;
 @property ControllerStatus status;
 @property NSUInteger previouslyDiscoveredHermesControllersCount;
 

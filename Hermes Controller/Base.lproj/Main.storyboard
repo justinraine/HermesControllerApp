@@ -514,13 +514,17 @@
                         </connections>
                     </tableView>
                     <navigationItem key="navigationItem" title="Stop Motion" id="x53-TC-qgy">
-                        <barButtonItem key="rightBarButtonItem" enabled="NO" title="Start" id="mLC-oe-I9a"/>
+                        <barButtonItem key="rightBarButtonItem" enabled="NO" title="Start" id="mLC-oe-I9a">
+                            <connections>
+                                <action selector="startButton:" destination="vIm-Up-5ZX" id="ngi-aj-zc3"/>
+                            </connections>
+                        </barButtonItem>
                     </navigationItem>
                     <connections>
                         <outlet property="dampingLabel" destination="yNe-uF-Wn9" id="HBR-LI-MqP"/>
                         <outlet property="dampingSlider" destination="Vri-mX-KXy" id="gKk-e8-VCH"/>
                         <outlet property="endPositionStatusLabel" destination="tsm-bz-BCH" id="d9r-23-Kqm"/>
-                        <outlet property="nextButton" destination="mLC-oe-I9a" id="5HL-3L-bYS"/>
+                        <outlet property="startButton" destination="mLC-oe-I9a" id="Op8-3w-2v1"/>
                         <outlet property="startPositionStatusLabel" destination="PDV-vn-Run" id="KpG-a9-5us"/>
                     </connections>
                 </tableViewController>
@@ -840,23 +844,6 @@
                 <placeholder placeholderIdentifier="IBFirstResponder" id="sct-5b-QpC" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="3007" y="-3660"/>
-        </scene>
-        <!--View Controller-->
-        <scene sceneID="cFz-7g-DKK">
-            <objects>
-                <viewController id="ICe-ld-are" sceneMemberID="viewController">
-                    <layoutGuides>
-                        <viewControllerLayoutGuide type="top" id="DOa-pd-Vid"/>
-                        <viewControllerLayoutGuide type="bottom" id="cZ5-yq-KKT"/>
-                    </layoutGuides>
-                    <view key="view" contentMode="scaleToFill" id="8hv-sz-Uax">
-                        <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
-                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                    </view>
-                </viewController>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="ulo-RN-GXI" userLabel="First Responder" sceneMemberID="firstResponder"/>
-            </objects>
         </scene>
     </scenes>
     <resources>

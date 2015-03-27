@@ -21,16 +21,16 @@ NS_ENUM(NSInteger, alertTag) {
 
 @interface LiveModeViewController ()
 
-@property (weak, nonatomic) IBOutlet UISlider *maxSpeedSlider;
-@property (weak, nonatomic) IBOutlet UISlider *dampingSlider;
-@property (weak, nonatomic) IBOutlet UILabel *maxSpeedDisplayValue;
-@property (weak, nonatomic) IBOutlet UILabel *dampingDisplayValue;
-@property (weak, nonatomic) IBOutlet UIButton *recordButton;
-@property (weak, nonatomic) IBOutlet UIButton *leftButton;
-@property (weak, nonatomic) IBOutlet UIButton *rightButton;
+@property (nonatomic, weak) IBOutlet UISlider *maxSpeedSlider;
+@property (nonatomic, weak) IBOutlet UISlider *dampingSlider;
+@property (nonatomic, weak) IBOutlet UILabel *maxSpeedDisplayValue;
+@property (nonatomic, weak) IBOutlet UILabel *dampingDisplayValue;
+@property (nonatomic, weak) IBOutlet UIButton *recordButton;
+@property (nonatomic, weak) IBOutlet UIButton *leftButton;
+@property (nonatomic, weak) IBOutlet UIButton *rightButton;
 
-@property (strong, nonatomic) NSMutableArray *ignoredHermesControllers; // List of controllers skipped during auto-connect
-@property (strong, nonatomic) CBPeripheral *potentialHermesController;
+@property (nonatomic, strong) NSMutableArray *ignoredHermesControllers; // List of controllers skipped during auto-connect
+@property (nonatomic, strong) CBPeripheral *potentialHermesController;
 //@property BOOL isRecording;
 @property MBProgressHUD *HUD;
 

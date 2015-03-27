@@ -14,8 +14,8 @@ NSString *const kSetStartPositionKey = @"setStartPositionKey";
 
 @interface PositionViewController ()
 
-@property (weak, nonatomic) IBOutlet UILabel *message;
-@property (strong, nonatomic) NSNumber *currentPosition;
+@property (nonatomic, weak) IBOutlet UILabel *message;
+@property (nonatomic, strong) NSNumber *currentPosition;
 
 @end
 

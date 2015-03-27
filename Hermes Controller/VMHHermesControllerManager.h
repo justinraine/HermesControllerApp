@@ -23,7 +23,7 @@ typedef NS_ENUM(NSUInteger, ControllerStatus) {
 @interface VMHHermesControllerManager : NSObject <BLEInterfaceDelegateProtocol>
 
 // Public Properties
-@property (strong, nonatomic) NSMutableArray *discoveredHermesControllers;
+@property (nonatomic, strong) NSMutableArray *discoveredHermesControllers;
 @property (readonly) ControllerStatus status;
 
 

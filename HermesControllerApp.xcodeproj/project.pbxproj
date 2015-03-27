@@ -41,7 +41,7 @@
 
 /* Begin PBXFileReference section */
 		87B183391AB917DE00BB2515 /* StopMotionModeTableViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StopMotionModeTableViewController.h; sourceTree = "<group>"; };
-		87B1833A1AB917DE00BB2515 /* StopMotionModeTableViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = StopMotionModeTableViewController.m; sourceTree = "<group>"; };
+		87B1833A1AB917DE00BB2515 /* StopMotionModeTableViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = StopMotionModeTableViewController.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		87B1833E1AB91DCE00BB2515 /* HelpViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HelpViewController.h; sourceTree = "<group>"; };
 		87B1833F1AB91DCE00BB2515 /* HelpViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HelpViewController.m; sourceTree = "<group>"; };
 		87B183441AB92DAE00BB2515 /* StopMotionModeReviewViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StopMotionModeReviewViewController.h; sourceTree = "<group>"; };
@@ -75,11 +75,11 @@
 		D05DD6AE1AAF8CE10088AF10 /* VMHHermesControllerManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VMHHermesControllerManager.h; sourceTree = "<group>"; };
 		D05DD6AF1AAF8CE10088AF10 /* VMHHermesControllerManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VMHHermesControllerManager.m; sourceTree = "<group>"; };
 		D05DD6B11AB0D4130088AF10 /* BLEInterface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BLEInterface.h; sourceTree = "<group>"; };
-		D05DD6B21AB0D4130088AF10 /* BLEInterface.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BLEInterface.m; sourceTree = "<group>"; };
+		D05DD6B21AB0D4130088AF10 /* BLEInterface.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = BLEInterface.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		D0751F991AACF03600439377 /* LiveModeViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LiveModeViewController.h; sourceTree = "<group>"; };
-		D0751F9A1AACF03600439377 /* LiveModeViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LiveModeViewController.m; sourceTree = "<group>"; };
+		D0751F9A1AACF03600439377 /* LiveModeViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = LiveModeViewController.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		D0F2346E1AB7DBF600E6D609 /* PositionViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PositionViewController.h; sourceTree = "<group>"; };
-		D0F2346F1AB7DBF600E6D609 /* PositionViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PositionViewController.m; sourceTree = "<group>"; };
+		D0F2346F1AB7DBF600E6D609 /* PositionViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = PositionViewController.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -103,8 +103,6 @@
 		87B1833D1AB9180D00BB2515 /* Stop Motion Mode */ = {
 			isa = PBXGroup;
 			children = (
-				87B183391AB917DE00BB2515 /* StopMotionModeTableViewController.h */,
-				87B1833A1AB917DE00BB2515 /* StopMotionModeTableViewController.m */,
 				87B183441AB92DAE00BB2515 /* StopMotionModeReviewViewController.h */,
 				87B183451AB92DAE00BB2515 /* StopMotionModeReviewViewController.m */,
 			);
@@ -201,6 +199,8 @@
 				D0751F9A1AACF03600439377 /* LiveModeViewController.m */,
 				D03958641AB4F6E0001F6A4D /* TimeLapseModeTableViewController.h */,
 				D03958651AB4F6E0001F6A4D /* TimeLapseModeTableViewController.m */,
+				87B183391AB917DE00BB2515 /* StopMotionModeTableViewController.h */,
+				87B1833A1AB917DE00BB2515 /* StopMotionModeTableViewController.m */,
 				87B1833D1AB9180D00BB2515 /* Stop Motion Mode */,
 				87B183471AB9357D00BB2515 /* ConnectionHelperViewController.h */,
 				87B183481AB9357D00BB2515 /* ConnectionHelperViewController.m */,

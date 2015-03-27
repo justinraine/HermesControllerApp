@@ -26,10 +26,10 @@
 @interface BLEInterface : NSObject <CBCentralManagerDelegate, CBPeripheralDelegate>
 
 // Public Properties
-@property (strong, nonatomic) NSMutableArray *peripherals;
-@property (strong, nonatomic) CBCentralManager *centralManager;
-@property (strong, nonatomic) CBPeripheral *activePeripheral;
-@property (strong, nonatomic) CBPeripheral *connectedPeripheral;
+@property (nonatomic, strong) NSMutableArray *peripherals;
+@property (nonatomic, strong) CBCentralManager *centralManager;
+@property (nonatomic, strong) CBPeripheral *activePeripheral;
+@property (nonatomic, strong) CBPeripheral *connectedPeripheral;
 
 
 - (id)initWithDelegate:(id)delegate;

@@ -9,6 +9,6 @@
 #import <UIKit/UIKit.h>
 #import "MBProgressHUD.h"
 
-@interface TimeLapseModeTableViewController : UITableViewController <UIPickerViewDelegate, UIPickerViewDataSource, UITableViewDelegate, MBProgressHUDDelegate>
+@interface TimeLapseModeTableViewController : UITableViewController <UITableViewDelegate, UIPickerViewDelegate, UIPickerViewDataSource, MBProgressHUDDelegate>
 
 @end

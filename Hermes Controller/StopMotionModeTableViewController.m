@@ -9,6 +9,7 @@
 #import "StopMotionModeTableViewController.h"
 #import "PositionViewController.h"
 #import "LabeledPickerView.h"
+#import "VMHPacket.h"
 
 static const int kCaptureDurationSection = 0;
 static const int kPlaybackDurationSection = 1;
@@ -18,24 +19,26 @@ static const int kOptionsSection = 3;
 
 @interface StopMotionModeTableViewController ()
 
-@property (strong, nonatomic) LabeledPickerView *captureDurationPicker;
-@property (strong, nonatomic) LabeledPickerView *playbackDurationPicker;
-@property (weak, nonatomic) IBOutlet UIBarButtonItem *nextButton;
-@property (weak, nonatomic) IBOutlet UILabel *startPositionStatusLabel;
-@property (weak, nonatomic) IBOutlet UILabel *endPositionStatusLabel;
-@property (weak, nonatomic) IBOutlet UILabel *dampingLabel;
-@property (weak, nonatomic) IBOutlet UISlider *dampingSlider;
+@property (nonatomic, weak) IBOutlet UIBarButtonItem *startButton;
+@property (nonatomic, weak) IBOutlet UILabel *startPositionStatusLabel;
+@property (nonatomic, weak) IBOutlet UILabel *endPositionStatusLabel;
+@property (nonatomic, weak) IBOutlet UILabel *dampingLabel;
+@property (nonatomic, weak) IBOutlet UISlider *dampingSlider;
+@property (nonatomic, strong) LabeledPickerView *captureDurationPicker;
+@property (nonatomic, strong) LabeledPickerView *playbackDurationPicker;
+@property (nonatomic, strong) NSNumber *startPositionSteps;
+@property (nonatomic, strong) NSNumber *endPositionSteps;
+@property (nonatomic, strong) MBProgressHUD *HUD;
 
 @end
 
 
 @implementation StopMotionModeTableViewController
 
+#pragma mark - Lifecycle
+
 - (void)viewDidLoad {
     [super viewDidLoad];
-    
-    // Set default Capture Duration and Playback Duration values
-    //[self initializeDurationPickers];
 }
 
 - (void)didReceiveMemoryWarning {
@@ -43,7 +46,17 @@ static const int kOptionsSection = 3;
     // Dispose of any resources that can be recreated.
 }
 
+
+
 #pragma mark - IBAction Methods
+
+- (IBAction)startButton:(id)sender {
+    VMHPacket *packet = [self createPacket];
+    [packet printPacket];
+    
+    [self displayStatus];
+}
+
 
 - (IBAction)updateDampingLabel:(id)sender {
     self.dampingLabel.text = [NSString stringWithFormat:@"%.f%%", self.dampingSlider.value*100];
@@ -51,19 +64,102 @@ static const int kOptionsSection = 3;
 
 
 
-#pragma mark - Picker View Delegate Methods
+#pragma mark - Private Methods
+
+- (VMHPacket *)createPacket {
+    NSInteger captureHours = [self.captureDurationPicker selectedRowInComponent:0];
+    NSInteger captureMinutes = [self.captureDurationPicker selectedRowInComponent:1] % 60;
+    NSInteger captureTotalSeconds = ((captureHours * 60) + captureMinutes) * 60;
+    NSInteger playbackTotalSeconds = [self.playbackDurationPicker selectedRowInComponent:0] % 60;
+    
+    VMHPacket *packet = [[VMHPacket alloc] init];
+    [packet configureStopMotionModePacketWithCaptureIntervalSeconds:captureTotalSeconds/playbackTotalSeconds
+                                                 startPositionSteps:[self.startPositionSteps integerValue]
+                                                   endPositionSteps:[self.endPositionSteps integerValue]
+                                                     dampingPercent:(int)self.dampingSlider.value*100];
+    return packet;
+}
+
+
+- (void)displayStatus {
+    self.HUD = [[MBProgressHUD alloc] initWithView:self.navigationController.view];
+    [self.navigationController.view addSubview:self.HUD];
+    
+    // Set determinate mode
+    self.HUD.mode = MBProgressHUDModeAnnularDeterminate;
+    
+    self.HUD.delegate = self;
+    self.HUD.labelText = @"Capturing...";
+    
+    // myProgressTask uses the HUD instance to update progress
+    [self.HUD showWhileExecuting:@selector(myProgressTask) onTarget:self withObject:nil animated:YES];
+}
+
+
+- (void)myProgressTask {
+    // This just increases the progress indicator in a loop
+    float progress = 0.0f;
+    while (progress < 2.0f) {
+        progress += 0.01f;
+        self.HUD.progress = progress;
+        usleep(50000);
+    }
+}
+
+
+- (void)updateStartButtonEnabled {
+    if (self.startPositionSteps && self.endPositionSteps &&
+        ([self.captureDurationPicker selectedRowInComponent:0] != 0 || [self.captureDurationPicker selectedRowInComponent:1]%60 != 0)) {
+        self.startButton.enabled = YES;
+    } else {
+        self.startButton.enabled = NO;
+    }
+}
+
+
+
+#pragma mark - Notification Handler
+
+- (void)positionDidUpdate:(NSNotification *)notification {
+    NSNumber *updatedPositionSteps = [notification.userInfo valueForKey:kPositionStepsKey];
+    BOOL setStartPosition = [[notification.userInfo valueForKey:kSetStartPositionKey] boolValue];
+    
+    if (setStartPosition) {
+        self.startPositionSteps = updatedPositionSteps;
+        NSLog(@"Updated Stop Motion Mode Start Position: %@", self.startPositionSteps);
+    } else {
+        self.endPositionSteps = updatedPositionSteps;
+        NSLog(@"Updated Stop Motion Mode End Position: %@", self.endPositionSteps);
+    }
+    
+    // Unregister for notificiations
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:kPositionUpdateNotification object:nil];
+}
+
+
+
+#pragma mark - PickerView DataSource Methods
 
 -(NSInteger)numberOfComponentsInPickerView:(UIPickerView *)pickerView {
-    return 2;
+    if (pickerView == self.captureDurationPicker) {
+        return 2;
+    } else {
+        return 1;
+    }
 }
+
 
 -(NSInteger)pickerView:(UIPickerView *)pickerView numberOfRowsInComponent:(NSInteger)component {
     if (pickerView == self.captureDurationPicker && component == 0) {
-        return 23; // 23 hour 59 minute capture duration max
+        return 48; // 47 hour 59 minute capture duration max
     } else {
         return 60*201;
     }
 }
+
+
+
+#pragma mark - PickerView Delegate Methods
 
 - (NSAttributedString *)pickerView:(UIPickerView *)pickerView attributedTitleForRow:(NSInteger)row forComponent:(NSInteger)component {
     NSMutableParagraphStyle *paragraphStyle = [[NSMutableParagraphStyle alloc] init];
@@ -71,7 +167,7 @@ static const int kOptionsSection = 3;
     
     // Hacky solution to numbers inside/outside selector not remaining aligned
     if (component == 0) {
-        [paragraphStyle setTailIndent:self.captureDurationPicker.frame.size.width*0.1]; // * value determined experimentally
+        [paragraphStyle setTailIndent:self.captureDurationPicker.frame.size.width*0.1]; // * Scaling factor determined experimentally
     } else {
         [paragraphStyle setTailIndent:self.captureDurationPicker.frame.size.width*0.14];
     }
@@ -80,15 +176,18 @@ static const int kOptionsSection = 3;
                                            attributes:@{NSParagraphStyleAttributeName:paragraphStyle}];
 }
 
+
 - (CGFloat)pickerView:(UIPickerView *)pickerView widthForComponent:(NSInteger)component {
     return self.view.frame.size.width/3 - 1;
 }
 
--(CGFloat)pickerView:(UIPickerView *)pickerView rowHeightForComponent:(NSInteger)component {
+
+- (CGFloat)pickerView:(UIPickerView *)pickerView rowHeightForComponent:(NSInteger)component {
     return self.captureDurationPicker.frame.size.height/6;
 }
 
--(void)pickerView:(UIPickerView *)pickerView didSelectRow:(NSInteger)row inComponent:(NSInteger)component {
+
+- (void)pickerView:(UIPickerView *)pickerView didSelectRow:(NSInteger)row inComponent:(NSInteger)component {
     if (pickerView == self.captureDurationPicker) {
         if (component == 0 && row == 1) {
             [self.captureDurationPicker updateLabel:@"hour" forComponent:0];
@@ -105,15 +204,9 @@ static const int kOptionsSection = 3;
         }
     }
     
-    // Set Next button hidden status
-    if ([self.startPositionStatusLabel.text isEqual: @"Set"] && [self.endPositionStatusLabel.text isEqual: @"Set"] &&
-        ([self.captureDurationPicker selectedRowInComponent:0] != 0 || [self.captureDurationPicker selectedRowInComponent:1]%60 != 0) &&
-        ([self.playbackDurationPicker selectedRowInComponent:0]%60 != 0 || [self.playbackDurationPicker selectedRowInComponent:1]%60 != 0)) {
-        self.nextButton.enabled = YES;
-    } else {
-        self.nextButton.enabled = NO;
-    }
+    [self updateStartButtonEnabled];
 }
+
 
 
 #pragma mark - Table View Delegate Methods
@@ -135,8 +228,7 @@ static const int kOptionsSection = 3;
         cell = [[UITableViewCell alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height)];
         self.playbackDurationPicker = [[LabeledPickerView alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, cell.frame.size.height)];
         self.playbackDurationPicker.delegate = self;
-        [self.playbackDurationPicker addLabel:@"min" forComponent:0 forLongestString:@"min"];
-        [self.playbackDurationPicker addLabel:@"sec" forComponent:1 forLongestString:@"sec"];
+        [self.playbackDurationPicker addLabel:@"sec" forComponent:0 forLongestString:@"sec"];
         [cell.contentView addSubview:self.playbackDurationPicker];
     }
     
@@ -162,6 +254,7 @@ static const int kOptionsSection = 3;
     }
 }
 
+
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
     CGFloat height;
     
@@ -182,36 +275,30 @@ static const int kOptionsSection = 3;
         PositionViewController *positionViewController = [storyboard instantiateViewControllerWithIdentifier:@"positionViewController"];
         [positionViewController setModalPresentationStyle:UIModalPresentationFullScreen];
         
-        if (indexPath.row == 0) { // Set start position row
-            //positionViewController.customMessage = @"Move the camera to the desired start position and press Set.";
+        // register as observer for update notification, will unregister after update received
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(positionDidUpdate:)
+                                                     name:kPositionUpdateNotification
+                                                   object:positionViewController];
+        
+        if (indexPath.row == 0) { // Prepare for segue to set start postition view
+            positionViewController.setStartPosition = YES;
+            
             [self.navigationController presentViewController:positionViewController animated:YES completion:^{
                 self.startPositionStatusLabel.text = @"Set";
-                if ([self.startPositionStatusLabel.text isEqual: @"Set"] && [self.endPositionStatusLabel.text isEqual: @"Set"]) {
-                    self.nextButton.enabled = YES;
-                }
+                [self updateStartButtonEnabled];
             }];
         } else if (indexPath.row == 1) { // Set end position row
-            //positionViewController.customMessage = @"Move the camera to the desired end position and press Set.";
+            positionViewController.setStartPosition = NO;
+            
             [self.navigationController presentViewController:positionViewController animated:YES completion:^{
                 self.endPositionStatusLabel.text = @"Set";
-                if ([self.startPositionStatusLabel.text isEqual: @"Set"] && [self.endPositionStatusLabel.text isEqual: @"Set"]) {
-                    self.nextButton.enabled = YES;
-                }
+                [self updateStartButtonEnabled];
             }];
         }
     }
     
     [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
 }
-
-/*
-#pragma mark - Navigation
-
-// In a storyboard-based application, you will often want to do a little preparation before navigation
-- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
-    // Get the new view controller using [segue destinationViewController].
-    // Pass the selected object to the new view controller.
-}
-*/
 
 @end

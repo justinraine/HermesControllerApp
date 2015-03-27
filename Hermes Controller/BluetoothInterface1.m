@@ -13,10 +13,10 @@
 @interface BluetoothInterface1()
 
 // Private Properties
-@property (strong, nonatomic) id delegate;
+@property (nonatomic, strong) id delegate;
 @property (nonatomic, getter=isReadyForCommand) BOOL readyForCommand;
-@property (strong, nonatomic) CBCharacteristic *txCharacteristic;
-@property (strong, nonatomic) CBCharacteristic *rxCharacteristic;
+@property (nonatomic, strong) CBCharacteristic *txCharacteristic;
+@property (nonatomic, strong) CBCharacteristic *rxCharacteristic;
 
 // Private Methods
 - (void)writeRawData:(NSData *)data;

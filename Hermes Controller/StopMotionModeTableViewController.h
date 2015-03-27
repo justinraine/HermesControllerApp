@@ -7,7 +7,8 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "MBProgressHUD.h"
 
-@interface StopMotionModeTableViewController : UITableViewController <UIPickerViewDelegate, UIPickerViewDataSource>
+@interface StopMotionModeTableViewController : UITableViewController <UITableViewDelegate, UIPickerViewDelegate, UIPickerViewDataSource, MBProgressHUDDelegate>
 
 @end

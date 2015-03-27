@@ -11,13 +11,13 @@
 
 @interface BLEInterface()
 
-@property (weak, nonatomic) id<BLEInterfaceDelegateProtocol> delegate;
+@property (nonatomic, weak) id<BLEInterfaceDelegateProtocol> delegate;
 @property (nonatomic, getter=isReadyForCommand) BOOL readyForCommand;
 @property (nonatomic, getter=isWaitingForReady) BOOL waitingForReady;
-@property (strong, nonatomic) NSArray *waitingToScanForServices;
-@property (strong, nonatomic) CBPeripheral *waitingToConnectToPeripheral;
-@property (strong, nonatomic) CBCharacteristic *txCharacteristic;
-@property (strong, nonatomic) CBCharacteristic *rxCharacteristic;
+@property (nonatomic, strong) NSArray *waitingToScanForServices;
+@property (nonatomic, strong) CBPeripheral *waitingToConnectToPeripheral;
+@property (nonatomic, strong) CBCharacteristic *txCharacteristic;
+@property (nonatomic, strong) CBCharacteristic *rxCharacteristic;
 
 @end
 
