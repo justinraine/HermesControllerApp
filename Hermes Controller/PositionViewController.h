@@ -8,9 +8,12 @@
 
 #import <UIKit/UIKit.h>
 
+extern NSString *const kPositionUpdateNotification;
+extern NSString *const kPositionStepsKey;
+extern NSString *const kSetStartPositionKey;
+
 @interface PositionViewController : UIViewController
 
-@property (strong, nonatomic) NSString *customMessage;
-@property int currentPosition;
+@property (getter=isSetStartPosition) BOOL setStartPosition;
 
 @end

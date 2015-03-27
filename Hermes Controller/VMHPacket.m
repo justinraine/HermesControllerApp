@@ -9,17 +9,17 @@
 #import "VMHPacket.h"
 
 typedef NS_ENUM(NSInteger, VMHModes) {
-    VMHLiveMode = 0x00,
-    VMHTimeLapseMode = 0x01,
-    VMHStopMotionMode = 0x02,
+    VMHModeLive = 0x00,
+    VMHModeTimeLapse = 0x01,
+    VMHModeStopMotion = 0x02,
 };
 
 typedef NS_ENUM(NSInteger, VMHCommands) {
-    VMHBeginRecording = 0x00,
-    VMHEndRecording = 0x01,
-    VMHMoveLeft = 0x02,
-    VMHMoveRight = 0x03,
-    VMHZeroPadding = 0x00,
+    VMHCommandBeginRecording = 0x00,
+    VMHCommandEndRecording = 0x01,
+    VMHCommandMoveLeft = 0x02,
+    VMHCommandMoveRight = 0x03,
+    VMHCommandNull = 0x00,
 };
 
 const int kPacketByteLength = 20;
@@ -96,8 +96,8 @@ const int kParam5Position = 9;
 #pragma mark - Packet Configuration Methods
 
 - (void)configureLiveModeBeginRecordingPacket {
-    [self.data insertObject:[NSNumber numberWithInt:VMHLiveMode] atIndex:kModePosition];
-    [self.data insertObject:[NSNumber numberWithInt:VMHBeginRecording] atIndex:kCommandPosition];
+    [self.data insertObject:[NSNumber numberWithInt:VMHModeLive] atIndex:kModePosition];
+    [self.data insertObject:[NSNumber numberWithInt:VMHCommandBeginRecording] atIndex:kCommandPosition];
     
     NSNumber *zero = [NSNumber numberWithInt:0x00];
     for (int i = kCommandPosition+1; i < kPacketByteLength; i++) {
@@ -107,8 +107,8 @@ const int kParam5Position = 9;
 
 
 - (void)configureLiveModeEndRecordingPacket {
-    [self.data insertObject:[NSNumber numberWithInt:VMHLiveMode] atIndex:kModePosition];
-    [self.data insertObject:[NSNumber numberWithInt:VMHEndRecording] atIndex:kCommandPosition];
+    [self.data insertObject:[NSNumber numberWithInt:VMHModeLive] atIndex:kModePosition];
+    [self.data insertObject:[NSNumber numberWithInt:VMHCommandEndRecording] atIndex:kCommandPosition];
     
     NSNumber *zero = [NSNumber numberWithInt:0x00];
     for (int i = kCommandPosition+1; i < kPacketByteLength; i++) {
@@ -117,11 +117,11 @@ const int kParam5Position = 9;
 }
 
 
-- (BOOL)configureLiveModeMoveLeftPacketWithSpeed:(int)speedPercent {
-    [self.data insertObject:[NSNumber numberWithInt:VMHLiveMode] atIndex:kModePosition];
-    [self.data insertObject:[NSNumber numberWithInt:VMHMoveLeft] atIndex:kCommandPosition];
+- (BOOL)configureLiveModeMoveLeftPacketWithSpeedPercent:(NSInteger)speedPercent {
+    [self.data insertObject:[NSNumber numberWithInt:VMHModeLive] atIndex:kModePosition];
+    [self.data insertObject:[NSNumber numberWithInt:VMHCommandMoveLeft] atIndex:kCommandPosition];
     if (speedPercent > 0 || speedPercent<= 100) {
-        [self.data insertObject:[NSNumber numberWithInt:speedPercent] atIndex:kParam1Position];
+        [self.data insertObject:[NSNumber numberWithInteger:speedPercent] atIndex:kParam1Position];
     } else {
         NSLog(@"Speed must be specified as a percentage from 0 to 100");
         return NO;
@@ -136,11 +136,11 @@ const int kParam5Position = 9;
 }
 
 
-- (BOOL)configureLiveModeMoveRightPacketWithSpeed:(int)speedPercent {
-    [self.data insertObject:[NSNumber numberWithInt:VMHLiveMode] atIndex:kModePosition];
-    [self.data insertObject:[NSNumber numberWithInt:VMHMoveRight] atIndex:kCommandPosition];
+- (BOOL)configureLiveModeMoveRightPacketWithSpeedPercent:(NSInteger)speedPercent {
+    [self.data insertObject:[NSNumber numberWithInt:VMHModeLive] atIndex:kModePosition];
+    [self.data insertObject:[NSNumber numberWithInt:VMHCommandMoveRight] atIndex:kCommandPosition];
     if (speedPercent > 0 || speedPercent<= 100) {
-        [self.data insertObject:[NSNumber numberWithInt:speedPercent] atIndex:kParam1Position];
+        [self.data insertObject:[NSNumber numberWithInteger:speedPercent] atIndex:kParam1Position];
     } else {
         NSLog(@"Speed must be specified as a percentage from 0 to 100");
         return NO;
@@ -155,19 +155,23 @@ const int kParam5Position = 9;
 }
 
 
--(BOOL)configureTimeLapseModePacketWithDuration:(int)durationSeconds
-                                 startPosition:(int)startPositionSteps
-                                   endPosition:(int)endPositionSteps
-                                       damping:(int)dampingPercent
-                                          loop:(BOOL)loop {
-    [self.data insertObject:[NSNumber numberWithInt:VMHTimeLapseMode] atIndex:kModePosition];
-    [self.data insertObject:[NSNumber numberWithInt:VMHBeginRecording] atIndex:kCommandPosition];
+-(BOOL)configureTimeLapseModePacketWithDurationSeconds:(NSInteger)durationSeconds
+                                    startPositionSteps:(NSInteger)startPositionSteps
+                                      endPositionSteps:(NSInteger)endPositionSteps
+                                        dampingPercent:(NSInteger)dampingPercent
+                                                repeat:(BOOL)repeat {
+    [self.data insertObject:[NSNumber numberWithInt:VMHModeTimeLapse] atIndex:kModePosition];
+    [self.data insertObject:[NSNumber numberWithInt:VMHCommandBeginRecording] atIndex:kCommandPosition];
     
-    if (![self setParametersForPacket:self.data duration:durationSeconds startPosition:startPositionSteps endPosition:endPositionSteps damping:dampingPercent]) {
+    if (![self setParametersForPacket:self.data
+                      durationSeconds:durationSeconds
+                   startPositionSteps:startPositionSteps
+                     endPositionSteps:endPositionSteps
+                       dampingPercent:dampingPercent]) {
         return NO;
     }
     
-    [self.data insertObject:[NSNumber numberWithBool:loop] atIndex:kParam5Position];
+    [self.data insertObject:[NSNumber numberWithBool:repeat] atIndex:kParam5Position];
     
     NSNumber *zero = [NSNumber numberWithInt:0x00];
     for (int i = kParam5Position+1; i < kPacketByteLength; i++) {
@@ -179,8 +183,8 @@ const int kParam5Position = 9;
 
 
 - (void)configureTimeLapseModeEndRecordingPacket {
-    [self.data insertObject:[NSNumber numberWithInt:VMHTimeLapseMode] atIndex:kModePosition];
-    [self.data insertObject:[NSNumber numberWithInt:VMHEndRecording] atIndex:kCommandPosition];
+    [self.data insertObject:[NSNumber numberWithInt:VMHModeTimeLapse] atIndex:kModePosition];
+    [self.data insertObject:[NSNumber numberWithInt:VMHCommandEndRecording] atIndex:kCommandPosition];
     
     NSNumber *zero = [NSNumber numberWithInt:0x00];
     for (int i = kCommandPosition+1; i < kPacketByteLength; i++) {
@@ -189,11 +193,19 @@ const int kParam5Position = 9;
 }
 
 
-- (BOOL)configureStopMotionModePacketWithCaptureInterval:(int)seconds startPosition:(int)startPositionSteps endPosition:(int)endPositionSteps damping:(int)dampingPercent {
-    [self.data insertObject:[NSNumber numberWithInt:VMHStopMotionMode] atIndex:kModePosition];
-    [self.data insertObject:[NSNumber numberWithInt:VMHBeginRecording] atIndex:kCommandPosition];
+- (BOOL)configureStopMotionModePacketWithCaptureIntervalSeconds:(NSInteger)captureIntervalSeconds
+                                             startPositionSteps:(NSInteger)startPositionSteps
+                                               endPositionSteps:(NSInteger)endPositionSteps
+                                                 dampingPercent:(NSInteger)dampingPercent {
+    [self.data insertObject:[NSNumber numberWithInt:VMHModeStopMotion] atIndex:kModePosition];
+    [self.data insertObject:[NSNumber numberWithInt:VMHCommandBeginRecording] atIndex:kCommandPosition];
     
-    if (![self setParametersForPacket:self.data duration:seconds startPosition:startPositionSteps endPosition:endPositionSteps damping:dampingPercent]) {
+    
+    if (![self setParametersForPacket:self.data
+                      durationSeconds:captureIntervalSeconds
+                   startPositionSteps:startPositionSteps
+                     endPositionSteps:endPositionSteps
+                       dampingPercent:dampingPercent]) {
         // set parameters failed
         return NO;
     }
@@ -208,8 +220,8 @@ const int kParam5Position = 9;
 
 
 - (void)configureStopMotionModeEndRecordingPacket {
-    [self.data insertObject:[NSNumber numberWithInt:VMHStopMotionMode] atIndex:kModePosition];
-    [self.data insertObject:[NSNumber numberWithInt:VMHEndRecording] atIndex:kCommandPosition];
+    [self.data insertObject:[NSNumber numberWithInt:VMHModeStopMotion] atIndex:kModePosition];
+    [self.data insertObject:[NSNumber numberWithInt:VMHCommandEndRecording] atIndex:kCommandPosition];
     
     NSNumber *zero = [NSNumber numberWithInt:0x00];
     for (int i = kCommandPosition+1; i < kPacketByteLength; i++) {
@@ -221,7 +233,11 @@ const int kParam5Position = 9;
 
 #pragma mark - Helper Function
 
-- (BOOL)setParametersForPacket:(NSMutableArray *)packet duration:(int)seconds startPosition:(int)startPositionSteps endPosition:(int)endPositionSteps damping:(int)dampingPercent {
+- (BOOL)setParametersForPacket:(NSMutableArray *)packet
+               durationSeconds:(NSInteger)seconds
+            startPositionSteps:(NSInteger)startPositionSteps
+              endPositionSteps:(NSInteger)endPositionSteps
+                dampingPercent:(NSInteger)dampingPercent {
     if (seconds > 0 && seconds < 65535) {
         int16_t higherBits = (seconds & 0xFF00) >> 8;
         int16_t lowerBits = seconds & 0x00FF;
@@ -254,7 +270,7 @@ const int kParam5Position = 9;
     }
     
     if (dampingPercent >= 0 && dampingPercent < 100) {
-        [packet insertObject:[NSNumber numberWithInt:dampingPercent] atIndex:kParam4Position];
+        [packet insertObject:[NSNumber numberWithInteger:dampingPercent] atIndex:kParam4Position];
     } else {
         NSLog(@"Error: Damping must be a percent between 0 and 100");
         return NO;

@@ -19,18 +19,18 @@ extern const int kPacketByteLength;
 // Packet Configuration Methods
 - (void)configureLiveModeBeginRecordingPacket;
 - (void)configureLiveModeEndRecordingPacket;
-- (BOOL)configureLiveModeMoveLeftPacketWithSpeed:(int)speedPercent;
-- (BOOL)configureLiveModeMoveRightPacketWithSpeed:(int)speedPercent;
-- (BOOL)configureTimeLapseModePacketWithDuration:(int)durationSeconds
-                                  startPosition:(int)startPositionSteps
-                                    endPosition:(int)endPositionSteps
-                                        damping:(int)dampingPercent
-                                           loop:(BOOL)loop;
+- (BOOL)configureLiveModeMoveLeftPacketWithSpeedPercent:(NSInteger)speedPercent;
+- (BOOL)configureLiveModeMoveRightPacketWithSpeedPercent:(NSInteger)speedPercent;
+- (BOOL)configureTimeLapseModePacketWithDurationSeconds:(NSInteger)durationSeconds
+                                     startPositionSteps:(NSInteger)startPositionSteps
+                                       endPositionSteps:(NSInteger)endPositionSteps
+                                         dampingPercent:(NSInteger)dampingPercent
+                                                 repeat:(BOOL)repeat;
 - (void)configureTimeLapseModeEndRecordingPacket;
-- (BOOL)configureStopMotionModePacketWithCaptureInterval:(int)seconds
-                                          startPosition:(int)startPositionSteps
-                                            endPosition:(int)endPositionSteps
-                                                damping:(int)dampingPercent;
+- (BOOL)configureStopMotionModePacketWithCaptureIntervalSeconds:(NSInteger)captureIntervalSeconds
+                                             startPositionSteps:(NSInteger)startPositionSteps
+                                               endPositionSteps:(NSInteger)endPositionSteps
+                                                 dampingPercent:(NSInteger)dampingPercent;
 - (void)configureStopMotionModeEndRecordingPacket;
 
 @end

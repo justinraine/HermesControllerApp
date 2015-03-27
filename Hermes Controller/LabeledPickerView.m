@@ -66,7 +66,7 @@
 
 		// change label during fade out/in
 		[UIView beginAnimations:nil context:NULL];
-		[UIView setAnimationDuration:0.75];
+		[UIView setAnimationDuration:0.1];
 		[UIView setAnimationCurve:UIViewAnimationCurveEaseInOut];
 		theLabel.alpha = 0.00;
 		theLabel.text = labeltext;
@@ -114,8 +114,6 @@
             UIFont *labelfont = [UIFont boldSystemFontOfSize:20];
             NSDictionary *attributes = @{NSFontAttributeName: labelfont};
             frame.size = [longestString sizeWithAttributes:attributes];
-            NSLog(@"Component %d Label: frame.size.height = %f", component,frame.size.height);
-            NSLog(@"Component %d Label: frame.size.width = %f", component, frame.size.width);
 
 			// center it vertically 
 			frame.origin.y = (self.frame.size.height / 2) - (frame.size.height / 2) - 0.5;

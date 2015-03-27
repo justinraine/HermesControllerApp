@@ -8,6 +8,6 @@
 
 #import <UIKit/UIKit.h>
 
-@interface HelpViewController : UIViewController <UIPickerViewDelegate, UIPickerViewDataSource>
+@interface HelpViewController : UIViewController
 
 @end

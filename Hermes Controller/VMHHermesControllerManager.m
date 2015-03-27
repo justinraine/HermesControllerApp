@@ -126,7 +126,7 @@ static int scanTimeoutSecond = 15; // CBCentralManager scan timeout duration
 
 - (void)beginRecording {
     VMHPacket *packet = [[VMHPacket alloc] init];
-    [packet configureLiveModeMoveRightPacketWithSpeed:80];
+    [packet configureLiveModeMoveRightPacketWithSpeedPercent:80];
     [packet printPacket];
     [packet dataFormat];
     

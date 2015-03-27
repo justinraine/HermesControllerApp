@@ -8,20 +8,27 @@
 
 #import "PositionViewController.h"
 
+NSString *const kPositionUpdateNotification = @"positionSetNotification";
+NSString *const kPositionStepsKey = @"positionStepsKey";
+NSString *const kSetStartPositionKey = @"setStartPositionKey";
+
 @interface PositionViewController ()
 
 @property (weak, nonatomic) IBOutlet UILabel *message;
-
+@property (strong, nonatomic) NSNumber *currentPosition;
 
 @end
+
 
 @implementation PositionViewController
 
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
-    if (self.customMessage != nil) {
-        self.message.text = self.customMessage;
+    if ([self isSetStartPosition]) {
+        self.message.text =  @"Move the camera to the desired start position and press Set.";
+    } else {
+        self.message.text =  @"Move the camera to the desired end position and press Set.";
     }
 }
 
@@ -31,8 +38,13 @@
 }
 
 - (IBAction)setPosition:(id)sender {
-    self.currentPosition = arc4random() % 3000;
-    NSLog(@"Position set: %d ** Dummy Value **", self.currentPosition);
+    self.currentPosition = [NSNumber numberWithInt:arc4random() % 3000]; // get response from Controller
+    NSLog(@"Position set: %@ ** Dummy Value **", self.currentPosition);
+    
+    NSDictionary *currentPosition = @{kPositionStepsKey : self.currentPosition,
+                                      kSetStartPositionKey : [NSNumber numberWithBool:self.setStartPosition]};
+    [[NSNotificationCenter defaultCenter] postNotificationName:kPositionUpdateNotification object:self userInfo:currentPosition];
+    
     [self dismissViewControllerAnimated:YES completion:nil];
 }
 

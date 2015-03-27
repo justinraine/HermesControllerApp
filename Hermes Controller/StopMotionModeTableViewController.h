@@ -1,5 +1,5 @@
 //
-//  StopMotionModeSetTableViewController.h
+//  StopMotionModeTableViewController.h
 //  HermesControllerApp
 //
 //  Created by Woody Allen on 2015-03-17.
@@ -8,6 +8,6 @@
 
 #import <UIKit/UIKit.h>
 
-@interface StopMotionModeSetTableViewController : UITableViewController
+@interface StopMotionModeTableViewController : UITableViewController <UIPickerViewDelegate, UIPickerViewDataSource>
 
 @end
