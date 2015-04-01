@@ -7,6 +7,9 @@
 //
 
 #import "VMHHermesControllerManager.h"
+@import CoreBluetooth;
+#import "VMHCentral.h"
+#import "VMHPeripheral.h"
 #import "Constants.h"
 #import "BLEInterface.h"
 #import "VMHPacket.h"
@@ -14,6 +17,9 @@
 @interface VMHHermesControllerManager()
 
 @property (nonatomic, strong) BLEInterface *BLEInterface;
+@property (nonatomic, strong) CBCentralManager *centralManager;
+@property (nonatomic, strong) CBPeripheral *connectedPeripheral;
+@property (nonatomic, getter=isWaitingToScan) BOOL waitingToScan;
 @property ControllerStatus status;
 @property NSUInteger previouslyDiscoveredHermesControllersCount;
 
@@ -25,11 +31,17 @@
 static int scanTimeoutSecond = 15; // CBCentralManager scan timeout duration
 //@synthesize status;
 
+#pragma mark - Lifecycle
+
 - (id)init {
     self = [super init];
     
     if (self) {
         self.BLEInterface = [[BLEInterface alloc] initWithDelegate:self];
+        self.centralManager = [[CBCentralManager alloc]
+                               initWithDelegate:[[VMHCentral alloc] init]
+                               queue:nil
+                               options:@{CBCentralManagerOptionRestoreIdentifierKey:@"BLESericeBrowser"}];
         self.status = kIdle; //*** necessary?
         self.discoveredHermesControllers = [NSMutableArray array];
     }
@@ -53,29 +65,28 @@ static int scanTimeoutSecond = 15; // CBCentralManager scan timeout duration
 
 
 - (void)scanForHermesController {
-    NSLog(@"Sending beginScanForPeripheralWithServices message to Bluetooth interface");
-
-    if (!self.BLEInterface) {
-        self.BLEInterface = [[BLEInterface alloc] initWithDelegate:self];
-    }
-    
-    NSArray *services = @[[CBUUID UUIDWithString:kUARTServiceUUIDString]];
-    [self.BLEInterface beginScanForPeripheralWithServices:services];
-}
-
-
-- (void)scanTimer {
-    if (self.status == kScanning &&
-        self.discoveredHermesControllers.count == self.previouslyDiscoveredHermesControllersCount) {
-        NSLog(@"Scan timed out - sending endScanForPeripherals message to Bluetooth interface");
-        [self.BLEInterface endScanForPeripherals];
-        self.status = kTimeout;
+    if ([self isReadyForCommand]) {
+        NSLog(@"Scanning for Bluetooth peripherals with UUID %@", kUARTServiceUUIDString);
+        
+        NSArray *services = @[[CBUUID UUIDWithString:kUARTServiceUUIDString]];
+        [self.centralManager scanForPeripheralsWithServices:services options:nil];
+    } else {
+        NSLog(@"Could not complete scan request. Request queued. Bluetooth state: %d (%s)",
+              (int)self.centralManager.state, [self centralManagerStateToString:self.centralManager.state]);
+        self.waitingToScan = YES;
     }
 }
 
 
 - (void)endScanForHermesController {
-    [self.BLEInterface endScanForPeripherals];
+    if ([self isReadyForCommand]) {
+        NSLog(@"Ending Bluetooth scan for peripherals");
+        [self.centralManager stopScan];
+    } else {
+        NSLog(@"Error: Unexpected condition - endScanForHermesController request while Bluetooth is in state %d (%s)",
+              (int)self.centralManager.state, [self centralManagerStateToString:self.centralManager.state]);
+    }
+    
     self.status = kIdle;
 }
 
@@ -149,12 +160,12 @@ static int scanTimeoutSecond = 15; // CBCentralManager scan timeout duration
 }
 
 
--(void)moveLeftWithSpeed:(NSInteger)speed {
+- (void)beginMovementWithDirection:(MoveDirection)direction {
     
 }
 
 
--(void)moveRightWithSpeed:(NSInteger)speed {
+- (void)endMovement {
     
 }
 
@@ -277,6 +288,52 @@ static int scanTimeoutSecond = 15; // CBCentralManager scan timeout duration
 - (void)BLEInterface:(BLEInterface *)BLEInterface didDisconnectPeripheral:(CBPeripheral *)peripheral {
     NSLog(@"HermesControlManager was disconnected from %@", peripheral.name);
     self.status = kDisconnected;
+}
+
+
+#pragma mark - Getter Methods
+
+- (BOOL)isReadyForCommand {
+    return _readyForCommand;
+}
+
+
+- (BOOL)isWaitingToScan {
+    return _waitingToScan;
+}
+
+
+
+#pragma mark - Private Methods
+
+- (const char *)centralManagerStateToString: (int)state {
+    switch(state) {
+        case CBCentralManagerStateUnknown:
+            return "State unknown (CBCentralManagerStateUnknown)";
+        case CBCentralManagerStateResetting:
+            return "State resetting (CBCentralManagerStateUnknown)";
+        case CBCentralManagerStateUnsupported:
+            return "State BLE unsupported (CBCentralManagerStateResetting)";
+        case CBCentralManagerStateUnauthorized:
+            return "State unauthorized (CBCentralManagerStateUnauthorized)";
+        case CBCentralManagerStatePoweredOff:
+            return "State BLE powered off (CBCentralManagerStatePoweredOff)";
+        case CBCentralManagerStatePoweredOn:
+            return "State powered up and ready (CBCentralManagerStatePoweredOn)";
+        default:
+            return "State unknown";
+    }
+    return "Unknown state";
+}
+
+
+- (void)scanTimer {
+    if (self.status == kScanning &&
+        self.discoveredHermesControllers.count == self.previouslyDiscoveredHermesControllersCount) {
+        NSLog(@"Scan timed out - sending endScanForPeripherals message to Bluetooth interface");
+        [self.BLEInterface endScanForPeripherals];
+        self.status = kTimeout;
+    }
 }
 
 @end

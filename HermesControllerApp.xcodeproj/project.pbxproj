@@ -26,6 +26,8 @@
 		D05DD6B01AAF8CE10088AF10 /* VMHHermesControllerManager.m in Sources */ = {isa = PBXBuildFile; fileRef = D05DD6AF1AAF8CE10088AF10 /* VMHHermesControllerManager.m */; };
 		D05DD6B31AB0D4130088AF10 /* BLEInterface.m in Sources */ = {isa = PBXBuildFile; fileRef = D05DD6B21AB0D4130088AF10 /* BLEInterface.m */; };
 		D0751F9B1AACF03600439377 /* LiveModeViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D0751F9A1AACF03600439377 /* LiveModeViewController.m */; };
+		D0EF9E501ACB9C4D006A298E /* VMHPeripheral.m in Sources */ = {isa = PBXBuildFile; fileRef = D0EF9E4F1ACB9C4D006A298E /* VMHPeripheral.m */; };
+		D0EF9E531ACB9C5E006A298E /* VMHCentral.m in Sources */ = {isa = PBXBuildFile; fileRef = D0EF9E521ACB9C5E006A298E /* VMHCentral.m */; };
 		D0F234701AB7DBF600E6D609 /* PositionViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D0F2346F1AB7DBF600E6D609 /* PositionViewController.m */; };
 /* End PBXBuildFile section */
 
@@ -78,6 +80,10 @@
 		D05DD6B21AB0D4130088AF10 /* BLEInterface.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = BLEInterface.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		D0751F991AACF03600439377 /* LiveModeViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LiveModeViewController.h; sourceTree = "<group>"; };
 		D0751F9A1AACF03600439377 /* LiveModeViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = LiveModeViewController.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
+		D0EF9E4E1ACB9C4D006A298E /* VMHPeripheral.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VMHPeripheral.h; sourceTree = "<group>"; };
+		D0EF9E4F1ACB9C4D006A298E /* VMHPeripheral.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VMHPeripheral.m; sourceTree = "<group>"; };
+		D0EF9E511ACB9C5E006A298E /* VMHCentral.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VMHCentral.h; sourceTree = "<group>"; };
+		D0EF9E521ACB9C5E006A298E /* VMHCentral.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VMHCentral.m; sourceTree = "<group>"; };
 		D0F2346E1AB7DBF600E6D609 /* PositionViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PositionViewController.h; sourceTree = "<group>"; };
 		D0F2346F1AB7DBF600E6D609 /* PositionViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = PositionViewController.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 /* End PBXFileReference section */
@@ -184,6 +190,10 @@
 				D04067BF1AC084140088AA7B /* VMHPacket.m */,
 				D05DD6AE1AAF8CE10088AF10 /* VMHHermesControllerManager.h */,
 				D05DD6AF1AAF8CE10088AF10 /* VMHHermesControllerManager.m */,
+				D0EF9E511ACB9C5E006A298E /* VMHCentral.h */,
+				D0EF9E521ACB9C5E006A298E /* VMHCentral.m */,
+				D0EF9E4E1ACB9C4D006A298E /* VMHPeripheral.h */,
+				D0EF9E4F1ACB9C4D006A298E /* VMHPeripheral.m */,
 				D05DD6B11AB0D4130088AF10 /* BLEInterface.h */,
 				D05DD6B21AB0D4130088AF10 /* BLEInterface.m */,
 				D05DD6A71AAEAB750088AF10 /* BluetoothInterface1.h */,
@@ -314,7 +324,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D0EF9E531ACB9C5E006A298E /* VMHCentral.m in Sources */,
 				87B183461AB92DAE00BB2515 /* StopMotionModeReviewViewController.m in Sources */,
+				D0EF9E501ACB9C4D006A298E /* VMHPeripheral.m in Sources */,
 				87B183491AB9357D00BB2515 /* ConnectionHelperViewController.m in Sources */,
 				D0421B7D1AA96CA50069C601 /* AppDelegate.m in Sources */,
 				D0421B7A1AA96CA50069C601 /* main.m in Sources */,

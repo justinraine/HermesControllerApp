@@ -12,6 +12,7 @@
 //#import "BluetoothInterface.h"
 #import "VMHHermesControllerManager.h"
 #import "BLEInterface.h"
+#import "VMHPacket.h"
 
 NS_ENUM(NSInteger, alertTag) {
     kHermesControllerFoundTag,
@@ -28,11 +29,9 @@ NS_ENUM(NSInteger, alertTag) {
 @property (nonatomic, weak) IBOutlet UIButton *recordButton;
 @property (nonatomic, weak) IBOutlet UIButton *leftButton;
 @property (nonatomic, weak) IBOutlet UIButton *rightButton;
-
 @property (nonatomic, strong) NSMutableArray *ignoredHermesControllers; // List of controllers skipped during auto-connect
 @property (nonatomic, strong) CBPeripheral *potentialHermesController;
-//@property BOOL isRecording;
-@property MBProgressHUD *HUD;
+@property (nonatomic, strong) MBProgressHUD *HUD;
 
 @end
 
@@ -82,6 +81,40 @@ NS_ENUM(NSInteger, alertTag) {
 
 
 - (IBAction)buttonTapped:(id)sender {
+//    VMHPacket *packet = [[VMHPacket alloc] init];
+//    [packet configureLiveModeBeginRecordingPacket];
+//    NSLog(@"*** LiveModeBeginRecordingPacket ***");
+//    [packet printPacket];
+//    
+//    [packet configureLiveModeEndRecordingPacket];
+//    NSLog(@"*** LiveModeEndRecordingPacket ***");
+//    [packet printPacket];
+//    
+//    [packet configureLiveModeMoveLeftPacketWithSpeedPercent:75];
+//    NSLog(@"*** LiveModeMoveLeftPacketWithSpeedPercent:75 ***");
+//    [packet printPacket];
+//    
+//    [packet configureLiveModeMoveRightPacketWithSpeedPercent:50];
+//    NSLog(@"*** LiveModeMoveRightPacketWithSpeedPercent:50 ***");
+//    [packet printPacket];
+//    
+//    [packet configureTimeLapseModePacketWithDurationSeconds:3900 startPositionSteps:250 endPositionSteps:2000 dampingPercent:100 repeat:YES];
+//    NSLog(@"*** TimeLapseModePacketWithDurationSeconds:3900 startPositionSteps:250 endPositionSteps:2000 dampingPercent:100 repeat:YES ***");
+//    [packet printPacket];
+//    
+//    [packet configureTimeLapseModeEndRecordingPacket];
+//    NSLog(@"*** TimeLapseModeEndRecordingPacket ***");
+//    [packet printPacket];
+//    
+//    [packet configureStopMotionModePacketWithCaptureIntervalSeconds:10 startPositionSteps:100 endPositionSteps:1500 dampingPercent:50];
+//    NSLog(@"*** StopMotionModePacketWithCaptureIntervalSeconds:10 startPositionSteps:100 endPositionSteps:1500 dampingPercent:50 ***");
+//    [packet printPacket];
+//    
+//    [packet configureStopMotionModeEndRecordingPacket];
+//    NSLog(@"*** configureStopMotionModeEndRecordingPacket ***");
+//    [packet printPacket];
+    
+    
     if (sender == self.recordButton) {
         if ([self.recordButton.titleLabel.text isEqualToString:@"Record"]) {
             NSLog(@"Record button tapped -- Send command to Arduino to begin recording");

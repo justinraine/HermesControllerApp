@@ -7,6 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
+@import CoreBluetooth;
 #import "BLEInterface.h"
 
 typedef NS_ENUM(NSUInteger, ControllerStatus) {
@@ -20,11 +21,17 @@ typedef NS_ENUM(NSUInteger, ControllerStatus) {
     kBluetoothNotPoweredOn,
 };
 
-@interface VMHHermesControllerManager : NSObject <BLEInterfaceDelegateProtocol>
+typedef NS_ENUM(NSUInteger, MoveDirection) {
+    kMoveLeft,
+    kMoveRight,
+};
+
+@interface VMHHermesControllerManager : NSObject <CBCentralManagerDelegate, BLEInterfaceDelegateProtocol>
 
 // Public Properties
 @property (nonatomic, strong) NSMutableArray *discoveredHermesControllers;
 @property (readonly) ControllerStatus status;
+@property (nonatomic, getter=isReadyForCommand) BOOL readyForCommand;
 
 
 // Public Methods
@@ -41,8 +48,10 @@ typedef NS_ENUM(NSUInteger, ControllerStatus) {
 // Operational Methods
 - (void)beginRecording;
 - (void)endRecording;
-- (void)moveLeftWithSpeed:(NSInteger)speed;
-- (void)moveRightWithSpeed:(NSInteger)speed;
+//- (void)moveLeftWithSpeed:(NSInteger)speed;
+//- (void)moveRightWithSpeed:(NSInteger)speed;
+- (void)beginMovementWithDirection:(MoveDirection)direction;
+- (void)endMovement;
 - (void)beginTimeLapseWithDuration:(NSInteger)durationSeconds
                      startPosition:(NSInteger)start
                        endPosition:(NSInteger)end
