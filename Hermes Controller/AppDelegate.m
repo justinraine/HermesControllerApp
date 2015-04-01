@@ -7,6 +7,7 @@
 //
 
 #import "AppDelegate.h"
+#import "VMHHermesControllerManager.h"
 
 @interface AppDelegate ()
 

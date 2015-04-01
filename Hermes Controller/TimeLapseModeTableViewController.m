@@ -70,11 +70,11 @@ static const int kOptionsSection = 2;
     NSInteger durationSeconds = ((selectedHour * 60) + selectedMinute) * 60;
     
     VMHPacket *packet = [[VMHPacket alloc] init];
-    [packet configureTimeLapseModePacketWithDurationSeconds:durationSeconds
-                                         startPositionSteps:[self.startPositionSteps integerValue]
-                                           endPositionSteps:[self.endPositionSteps integerValue]
-                                             dampingPercent:(int)self.dampingSlider.value*100
-                                                     repeat:self.repeatSwitch.on];
+//    [packet configureTimeLapseModePacketWithDurationSeconds:durationSeconds
+//                                         startPositionSteps:[self.startPositionSteps integerValue]
+//                                           endPositionSteps:[self.endPositionSteps integerValue]
+//                                             dampingPercent:(int)self.dampingSlider.value*100
+//                                                     repeat:self.repeatSwitch.on];
     return packet;
 }
 

@@ -18,12 +18,8 @@ typedef NS_ENUM(NSUInteger, ControllerStatus) {
     kDisconnected,
     kTimeout,
     kIdle,
-    kBluetoothNotPoweredOn,
-};
-
-typedef NS_ENUM(NSUInteger, MoveDirection) {
-    kMoveLeft,
-    kMoveRight,
+    kBluetoothPoweredOff,
+    kError,
 };
 
 @interface VMHHermesControllerManager : NSObject <CBCentralManagerDelegate, BLEInterfaceDelegateProtocol>
@@ -37,27 +33,28 @@ typedef NS_ENUM(NSUInteger, MoveDirection) {
 
 // Utility Methods
 + (VMHHermesControllerManager *)sharedInstance;
-- (void)scanForHermesController;
-- (void)endScanForHermesController;
+//- (void)scanForHermesController;
+//- (void)endScanForHermesController;
 //- (void)continueScanForHermesController;
-- (void)connectToHermesController:(CBPeripheral *)peripheral;
+//- (void)connectToHermesController:(CBPeripheral *)peripheral;
+- (void)connectToNearbyHermesController;
 - (CBPeripheral *)getConnectedHermesController;
-- (void)sendCommand:(NSString *)command;
 
 // Operational Methods
-- (void)beginRecording;
-- (void)endRecording;
-//- (void)moveLeftWithSpeed:(NSInteger)speed;
-//- (void)moveRightWithSpeed:(NSInteger)speed;
-- (void)beginMovementWithDirection:(MoveDirection)direction;
-- (void)endMovement;
-- (void)beginTimeLapseWithDuration:(NSInteger)durationSeconds
+- (BOOL)beginRecording;
+- (BOOL)endRecording;
+- (BOOL)beginMovingRight;
+- (BOOL)beginMovingLeft;
+- (BOOL)endMovement;
+- (BOOL)beginTimeLapseWithDuration:(NSInteger)durationSeconds
                      startPosition:(NSInteger)start
                        endPosition:(NSInteger)end
                            damping:(NSInteger)damping
                               loop:(BOOL)loop;
-- (void)beginStopMotionWithInterval:(NSInteger)intervalSeconds
+- (BOOL)endTimeLapse;
+- (BOOL)beginStopMotionWithInterval:(NSInteger)intervalSeconds
                       startPosition:(NSInteger)start
                         endPosition:(NSInteger)end
                             damping:(NSInteger)damping;
+- (BOOL)endStopMotion;
 @end

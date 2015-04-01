@@ -15,9 +15,12 @@
 
 @interface VMHHermesControllerManager()
 
-@property (nonatomic, strong) BLEInterface *BLEInterface;
+//@property (nonatomic, strong) BLEInterface *BLEInterface;
 @property (nonatomic, strong) CBCentralManager *centralManager;
 @property (nonatomic, strong) CBPeripheral *connectedPeripheral;
+@property (nonatomic, strong) CBCharacteristic *txCharacteristic;
+@property (nonatomic, strong) CBCharacteristic *rxCharacteristic;
+@property (nonatomic, strong) VMHPacket *packet;
 @property (nonatomic, getter=isReadyForCommand) BOOL readyForCommand;
 @property (nonatomic, getter=isWaitingToScan) BOOL waitingToScan;
 @property ControllerStatus status;
@@ -28,7 +31,7 @@
 
 @implementation VMHHermesControllerManager
 
-static int scanTimeoutSecond = 15; // CBCentralManager scan timeout duration
+static int scanTimeoutSecond = 15;
 //@synthesize status;
 
 #pragma mark - Lifecycle
@@ -37,13 +40,25 @@ static int scanTimeoutSecond = 15; // CBCentralManager scan timeout duration
     self = [super init];
     
     if (self) {
-        self.BLEInterface = [[BLEInterface alloc] initWithDelegate:self];
+        // Setup CoreBluetooth Properties
         self.centralManager = [[CBCentralManager alloc]
                                initWithDelegate:self
                                queue:nil
                                options:nil /*@{CBCentralManagerOptionRestoreIdentifierKey:@"BLESericeBrowser"}*/];
-        self.status = kIdle; //*** necessary?
+        self.txCharacteristic = [[CBMutableCharacteristic alloc] initWithType:[CBUUID UUIDWithString:kTransmitCharacteristicUUIDString]
+                                                                   properties:CBCharacteristicPropertyWrite
+                                                                        value:nil
+                                                                  permissions:CBAttributePermissionsWriteable];
+        self.rxCharacteristic = [[CBMutableCharacteristic alloc] initWithType:[CBUUID UUIDWithString:kReceiveCharacteristicUUIDString]
+                                                                   properties:CBCharacteristicPropertyRead
+                                                                        value:nil
+                                                                  permissions:CBAttributePermissionsReadable];
+        
+        
+        // Initialize other variables
+        self.status = kBluetoothPoweredOff;
         self.discoveredHermesControllers = [NSMutableArray array];
+        self.packet = [[VMHPacket alloc] init];
     }
     
     return self;
@@ -67,6 +82,39 @@ static int scanTimeoutSecond = 15; // CBCentralManager scan timeout duration
 
 
 // Checks status of Bluetooth interface and begins scan if possible otherwise reports an error
+- (void)connectToNearbyHermesController {
+    if ([self isReadyForCommand]) {
+        NSLog(@"Scanning for Bluetooth peripherals with UUID %@", kUARTServiceUUIDString);
+        
+        // Begin scan timeout timer
+        [NSTimer scheduledTimerWithTimeInterval:scanTimeoutSecond
+                                         target:self
+                                       selector:@selector(scanTimer:)
+                                       userInfo:nil
+                                        repeats:NO];
+        
+        // Begin scanning
+        NSArray *services = @[[CBUUID UUIDWithString:kUARTServiceUUIDString]];
+        [self.centralManager scanForPeripheralsWithServices:services options:nil];
+        self.status = kScanning;
+    } else {
+        NSLog(@"Could not complete scan request -- request queued. Bluetooth state: %d (%s)",
+              (int)self.centralManager.state, [self centralManagerStateToString:self.centralManager.state]);
+        self.waitingToScan = YES;
+    }
+}
+
+
+- (CBPeripheral *)getConnectedHermesController {
+    if (self.connectedPeripheral) {
+        return self.connectedPeripheral;
+    } else {
+        NSLog(@"Hermes Controller is not connected");
+        return nil;
+    }
+}
+
+/* Old Methods
 - (void)scanForHermesController {
     if ([self isReadyForCommand]) {
         NSLog(@"Scanning for Bluetooth peripherals with UUID %@", kUARTServiceUUIDString);
@@ -89,164 +137,158 @@ static int scanTimeoutSecond = 15; // CBCentralManager scan timeout duration
 }
 
 
-- (void)endScanForHermesController {
-    if ([self isReadyForCommand]) {
-        NSLog(@"Ending Bluetooth scan for peripherals");
-        [self.centralManager stopScan];
-    } else {
-        NSLog(@"Error: Unexpected condition - endScanForHermesController request while Bluetooth is in state %d (%s)",
-              (int)self.centralManager.state, [self centralManagerStateToString:self.centralManager.state]);
-    }
-    
-    self.status = kIdle;
+- (void)continueScanForHermesController {
+    NSNumber *foundControllerCount = [NSNumber numberWithInteger:self.discoveredHermesControllers.count];
+    [NSTimer scheduledTimerWithTimeInterval:(float)scanTimeoutSecond
+                                     target:self
+                                   selector:@selector(continueScanTimer:)
+                                   userInfo:foundControllerCount
+                                    repeats:NO];
 }
 
 
-//- (void)continueScanForHermesController {
-//    NSNumber *foundControllerCount = [NSNumber numberWithInteger:self.discoveredHermesControllers.count];
-//    [NSTimer scheduledTimerWithTimeInterval:(float)scanTimeoutSecond
-//                                     target:self
-//                                   selector:@selector(continueScanTimer:)
-//                                   userInfo:foundControllerCount
-//                                    repeats:NO];
-//}
-//
-//
-//- (void)continueScanTimer:(NSTimer *)timer {
-//    int previousControllerCount = [((NSNumber *)[timer userInfo]) intValue];
-//    if (self.status == kScanning && self.discoveredHermesControllers.count == previousControllerCount) {
-//        NSLog(@"Scan timed out - sending endScanForPeripherals message to Bluetooth interface");
-//        [self.BLEInterface endScanForPeripherals];
-//        self.status = kTimeout;
-//    }
-//}
-
-
-- (void)connectToHermesController:(CBPeripheral *)peripheral {
-    NSLog(@"Sending connectToPeripheral message to Bluetooth interface");
-    [self.BLEInterface connectToPeripheral:peripheral];
-}
-
-
-- (CBPeripheral *)getConnectedHermesController {
-    if (self.connectedPeripheral) {
-        return self.BLEInterface.connectedPeripheral;
-    } else {
-        NSLog(@"Hermes Controller is not connected");
-        return nil;
+- (void)continueScanTimer:(NSTimer *)timer {
+    int previousControllerCount = [((NSNumber *)[timer userInfo]) intValue];
+    if (self.status == kScanning && self.discoveredHermesControllers.count == previousControllerCount) {
+        NSLog(@"Scan timed out - sending endScanForPeripherals message to Bluetooth interface");
+        [self.BLEInterface endScanForPeripherals];
+        self.status = kTimeout;
     }
 }
-
-
-- (void)sendCommand:(NSString *)command {
-    if (self.status == kConnected) {
-        NSLog(@"Sending command to connected device");
-        //[self.BTInterface writeString:command];
-    } else {
-        NSLog(@"Error: Unable to send command - no connected peripheral");
-    }
-}
+ */
 
 
 
 #pragma mark - Operational Methods
 
-- (void)beginRecording {
-    VMHPacket *packet = [[VMHPacket alloc] init];
-    [packet configureLiveModeMoveRightPacketWithSpeedPercent:80];
-    [packet printPacket];
-    [packet dataFormat];
-    
+- (BOOL)beginRecording {
     if (self.status == kConnected) {
-        [self.BLEInterface writeValue:kUARTServiceUUIDInt
-                   characteristicUUID:kTransmitCharacteristicUUIDInt
-                                    p:self.BLEInterface.connectedPeripheral
-                                 data:[self createRecordStartCommand]];
+        [self.packet configureRecordingPacketWithStatus:RecordingBegin];
+        [self.connectedPeripheral writeValue:[self.packet dataFormat]
+                           forCharacteristic:self.txCharacteristic
+                                        type:CBCharacteristicWriteWithResponse];
+        return YES;
+    } else {
+        return NO;
     }
 }
 
 
-- (void)endRecording {
+- (BOOL)endRecording {
     if (self.status == kConnected) {
-        [self.BLEInterface writeValue:kUARTServiceUUIDInt
-                   characteristicUUID:kTransmitCharacteristicUUIDInt
-                                    p:self.BLEInterface.connectedPeripheral
-                                 data:[self createRecordStopCommand]];
+        [self.packet configureRecordingPacketWithStatus:RecordingEnd];
+        [self.connectedPeripheral writeValue:[self.packet dataFormat]
+                           forCharacteristic:self.txCharacteristic
+                                        type:CBCharacteristicWriteWithResponse];
+        return YES;
+    } else {
+        return NO;
     }
 }
 
 
-- (void)beginMovementWithDirection:(MoveDirection)direction {
-    
+- (BOOL)beginMovingLeft {
+    if (self.status == kConnected) {
+        [self.packet configureMovementPacketWithDirection:MovementLeft];
+        [self.connectedPeripheral writeValue:[self.packet dataFormat]
+                           forCharacteristic:self.txCharacteristic
+                                        type:CBCharacteristicWriteWithResponse];
+        return YES;
+    } else {
+        return NO;
+    }
 }
 
 
-- (void)endMovement {
-    
+- (BOOL)beginMovingRight {
+    if (self.status == kConnected) {
+        [self.packet configureMovementPacketWithDirection:MovementRight];
+        [self.connectedPeripheral writeValue:[self.packet dataFormat]
+                           forCharacteristic:self.txCharacteristic
+                                        type:CBCharacteristicWriteWithResponse];
+        return YES;
+    } else {
+        return NO;
+    }
 }
 
 
--(void)beginTimeLapseWithDuration:(NSInteger)durationSeconds startPosition:(NSInteger)start endPosition:(NSInteger)end damping:(NSInteger)damping loop:(BOOL)loop {
-    
+- (BOOL)endMovement {
+    if (self.status == kConnected) {
+        [self.packet configureMovementPacketWithDirection:MovementStop];
+        [self.connectedPeripheral writeValue:[self.packet dataFormat]
+                           forCharacteristic:self.txCharacteristic
+                                        type:CBCharacteristicWriteWithResponse];
+        return YES;
+    } else {
+        return NO;
+    }
 }
 
 
--(void)beginStopMotionWithInterval:(NSInteger)intervalSeconds startPosition:(NSInteger)start endPosition:(NSInteger)end damping:(NSInteger)damping {
-    
+-(BOOL)beginTimeLapseWithDuration:(NSInteger)durationSeconds
+                    startPosition:(NSInteger)start
+                      endPosition:(NSInteger)end
+                          damping:(NSInteger)damping
+                             loop:(BOOL)loop {
+    if (self.status == kConnected) {
+        [self.packet configureTimeLapseModePacketWithDurationSeconds:durationSeconds
+                                                  startPositionSteps:start
+                                                    endPositionSteps:end
+                                                      dampingPercent:damping loop:loop];
+        [self.connectedPeripheral writeValue:[self.packet dataFormat]
+                           forCharacteristic:self.txCharacteristic
+                                        type:CBCharacteristicWriteWithResponse];
+        return YES;
+    } else {
+        return NO;
+    }
 }
 
 
-- (NSData *)createRecordStartCommand {
-    NSString *recordCommand = @"Start the recording!";
-    return [recordCommand dataUsingEncoding:NSUTF8StringEncoding];
+- (BOOL)endTimeLapse {
+    if (self.status == kConnected) {
+        [self.packet configureTimeLapseModeEndRecordingPacket];
+        [self.connectedPeripheral writeValue:[self.packet dataFormat]
+                           forCharacteristic:self.txCharacteristic
+                                        type:CBCharacteristicWriteWithResponse];
+        return YES;
+    } else {
+        return NO;
+    }
 }
 
 
-- (NSData *)createRecordStopCommand {
-    NSString *recordCommand = @"Stop recording dummy";
-    return [recordCommand dataUsingEncoding:NSUTF8StringEncoding];
+-(BOOL)beginStopMotionWithInterval:(NSInteger)intervalSeconds
+                     startPosition:(NSInteger)start
+                       endPosition:(NSInteger)end
+                           damping:(NSInteger)damping {
+    if (self.status == kConnected) {
+        [self.packet configureStopMotionModePacketWithCaptureIntervalSeconds:intervalSeconds
+                                                          startPositionSteps:start
+                                                            endPositionSteps:end
+                                                              dampingPercent:damping];
+        [self.connectedPeripheral writeValue:[self.packet dataFormat]
+                           forCharacteristic:self.txCharacteristic
+                                        type:CBCharacteristicWriteWithResponse];
+        return YES;
+    } else {
+        return NO;
+    }
 }
 
 
-#pragma mark - Packet Creation Methods
-
-//- (void)createLiveModeBeginRecordingPacket:(char *)packet {
-//    packet[19] = JRLiveMode;
-//    packet[18] = JRBeginRecording;
-//    for (int i = 0; i < 18; i++) {
-//        packet[i] = JRZeroPadding;
-//    }
-//}
-//
-//
-//- (void)createLiveModeEndRecordingPacket:(char *)packet {
-//    packet[19] = JRLiveMode;
-//    packet[18] = JREndRecording;
-//    for (int i = 0; i < 18; i++) {
-//        packet[i] = JRZeroPadding;
-//    }
-//}
-//
-//
-//- (void)createMoveLeftPacket:(char *)packet speed:(int)speed {
-//    packet[19] = JRLiveMode;
-//    packet[18] = JRMoveLeft;
-//    packet[17] = speed;
-//    for (int i = 0; i < 17; i++) {
-//        packet[i] = JRZeroPadding;
-//    }
-//}
-//
-//
-//- (void)createMoveRightPacket:(char *)packet speed:(int)speed {
-//    packet[19] = JRLiveMode;
-//    packet[18] = JRMoveRight;
-//    packet[17] = speed;
-//    for (int i = 0; i < 17; i++) {
-//        packet[i] = JRZeroPadding;
-//    }
-//}
-
+- (BOOL)endStopMotion {
+    if (self.status == kConnected) {
+        [self.packet configureStopMotionModeEndRecordingPacket];
+        [self.connectedPeripheral writeValue:[self.packet dataFormat]
+                           forCharacteristic:self.txCharacteristic
+                                        type:CBCharacteristicWriteWithResponse];
+        return YES;
+    } else {
+        return NO;
+    }
+}
 
 
 #pragma mark - CBCentralManagerDelegate Methods
@@ -263,64 +305,63 @@ static int scanTimeoutSecond = 15; // CBCentralManager scan timeout duration
     switch (central.state) {
         case CBCentralManagerStatePoweredOff:
             NSLog(@"CoreBluetooth BLE hardware is powered off");
+            self.status = kBluetoothPoweredOff;
             break;
         case CBCentralManagerStatePoweredOn:
             NSLog(@"CoreBluetooth BLE hardware is powered on and ready");
             self.readyForCommand = YES;
+            self.status = kIdle;
             
             if ([self isWaitingToScan]) {
+                self.status = kScanning;
                 NSArray *services = @[[CBUUID UUIDWithString:kUARTServiceUUIDString]];
                 [self.centralManager scanForPeripheralsWithServices:services options:nil];
             }
             break;
         case CBCentralManagerStateResetting:
             NSLog(@"CoreBluetooth BLE hardware is resetting");
+            self.status = kBluetoothPoweredOff;
             break;
         case CBCentralManagerStateUnauthorized:
             NSLog(@"CoreBluetooth BLE state is unauthorized");
+            self.status = kError;
             break;
         case CBCentralManagerStateUnknown:
             NSLog(@"CoreBluetooth BLE state is unknown");
+            self.status = kError;
             break;
         case CBCentralManagerStateUnsupported:
             NSLog(@"CoreBluetooth BLE hardware is unsupported on this platform");
+            self.status = kError;
             break;
         default:
             NSLog(@"Error: Could not determine CoreBluetooth BLE state");
+            self.status = kError;
             break;
     }
 }
 
 
-//- (void)centralManager:(CBCentralManager *)central willRestoreState:(NSDictionary *)dict {
-//    self.peripherals = dict[CBCentralManagerRestoredStatePeripheralsKey];
-//    
-//}
-
+// Automatically connects to discovered peripherals
 - (void)centralManager:(CBCentralManager *)central didDiscoverPeripheral:(CBPeripheral *)peripheral
      advertisementData:(NSDictionary *)advertisementData RSSI:(NSNumber *)RSSI {
     NSLog(@"Found peripheral with UUID : %@\n\n", [[peripheral identifier] UUIDString]);
     
-    NSDictionary *newlyDiscoveredPeripheral = @{@"peripheral"        : peripheral,
-                                                @"advertisementData" : advertisementData,
-                                                @"RSSI"              : RSSI};
-    
-    // Add to discoveredHermesControllers -> KVO notification triggers user prompt to connect
-    [self willChange:NSKeyValueChangeInsertion valuesAtIndexes:0 forKey:@"discoveredHermesControllers"]; //*** Manual invokation of KVO notifications.  Does it work?!
-    [self.discoveredHermesControllers insertObject:newlyDiscoveredPeripheral atIndex:0];
-    [self didChange:NSKeyValueChangeInsertion valuesAtIndexes:0 forKey:@"discoveredHermesControllers"]; //***
+    [self connectToHermesController:peripheral];
 }
 
 
 - (void)centralManager:(CBCentralManager *)central didConnectPeripheral:(CBPeripheral *)peripheral {
     NSLog(@"Connected to peripheral with UUID : %@\n\n", [[peripheral identifier] UUIDString]);
     self.connectedPeripheral = peripheral;
+    self.status = kConnected;
 }
 
 
 - (void)centralManager:(CBCentralManager *)central didFailToConnectPeripheral:(CBPeripheral *)peripheral error:(NSError *)error {
     NSLog(@"Failed to connect to peripheral with UUID : %@\n\n", [[peripheral identifier] UUIDString]);
     self.connectedPeripheral = nil;
+    self.status = kConnectionFailed;
 }
 
 
@@ -335,64 +376,9 @@ static int scanTimeoutSecond = 15; // CBCentralManager scan timeout duration
     }
     
     self.connectedPeripheral = nil;
-}
-
-#pragma  mark - BluetoothInterface Delegate Methods
-
-/*--------------------------------------------------------------------------------------------------
- *
- *                                 BLEInterface Delegate Methods
- *
- *------------------------------------------------------------------------------------------------*/
-
-- (void)BLEInterfaceWillScanForPeripherals:(BLEInterface *)BLEInterface {
-    self.status = kScanning;
-    self.previouslyDiscoveredHermesControllersCount = self.discoveredHermesControllers.count;
-    [NSTimer scheduledTimerWithTimeInterval:(float)scanTimeoutSecond
-                                     target:self
-                                   selector:@selector(scanTimer)
-                                   userInfo:nil
-                                    repeats:NO];
-}
-
-//- (void)BLEInterfaceDidEndScanForPeripherals:(BLEInterface *)BLEInterface {
-//    NSLog(@"BLEInterfaceDidEndScanForPeripherals method");
-//}
-
-- (void)BLEInterface:(BLEInterface *)BLEInterface didDiscoverPeripheral:(CBPeripheral *)peripheral
-   advertisementData:(NSDictionary *)advertisementData RSSI:(NSNumber *)RSSI {
-    NSDictionary *newlyDiscoveredPeripheral = @{@"peripheral"        : peripheral,
-                                                @"advertisementData" : advertisementData,
-                                                @"RSSI"              : RSSI};
-    
-    // Add to discoveredHermesControllers -> KVO notification triggers user prompt to connect
-    [self willChange:NSKeyValueChangeInsertion valuesAtIndexes:0 forKey:@"discoveredHermesControllers"]; //*** Manual invokation of KVO notifications.  Does it work?!
-    [self.discoveredHermesControllers insertObject:newlyDiscoveredPeripheral atIndex:0];
-    [self didChange:NSKeyValueChangeInsertion valuesAtIndexes:0 forKey:@"discoveredHermesControllers"]; //***
-}
-
--(void)BLEInterface:(BLEInterface *)BLEInterface willConnectToPeripheral:(CBPeripheral *)peripheral {
-    NSLog(@"Connceting to peripheral %@", peripheral.name);
-    self.status = kConnecting;
-}
-
-- (void)BLEInterface:(BLEInterface *)BLEInterface didConnectPeripheral:(CBPeripheral *)peripheral {
-    // If here, peripheral is connected and Rx and Tx characteristics have been initialized in BluetoothInterface
-    NSLog(@"HermesControllerManager connected to %@", peripheral.name);
-    self.status = kConnected;
-}
-
-
-- (void)BLEInterface:(BLEInterface *)BLEInterface didFailToConnectPeripheral:(CBPeripheral *)peripheral {
-    NSLog(@"HermesControllerManager failed to connect to %@", peripheral.name);
-    self.status = kConnectionFailed;
-}
-
-
-- (void)BLEInterface:(BLEInterface *)BLEInterface didDisconnectPeripheral:(CBPeripheral *)peripheral {
-    NSLog(@"HermesControlManager was disconnected from %@", peripheral.name);
     self.status = kDisconnected;
 }
+
 
 
 #pragma mark - Getter Methods
@@ -432,11 +418,37 @@ static int scanTimeoutSecond = 15; // CBCentralManager scan timeout duration
 
 
 - (void)scanTimer {
-    if (self.status == kScanning &&
-        self.discoveredHermesControllers.count == self.previouslyDiscoveredHermesControllersCount) {
-        NSLog(@"Scan timed out - sending endScanForPeripherals message to Bluetooth interface");
-        [self.BLEInterface endScanForPeripherals];
+    if (self.status == kScanning) {
+        NSLog(@"Scan timed out");
+        
         self.status = kTimeout;
+        [self endScanForHermesController];
+    }
+}
+
+
+- (void)endScanForHermesController {
+    if ([self isReadyForCommand]) {
+        NSLog(@"Ending Bluetooth scan for peripherals");
+        [self.centralManager stopScan];
+    } else {
+        NSLog(@"Error: Unexpected condition - endScanForHermesController request while Bluetooth is in state %d (%s)",
+              (int)self.centralManager.state, [self centralManagerStateToString:self.centralManager.state]);
+    }
+    
+    self.status = kIdle;
+}
+
+
+- (void)connectToHermesController:(CBPeripheral *)peripheral {
+    if ([self isReadyForCommand]) {
+        NSLog(@"Attempting to connect to %@", peripheral.name);
+        
+        self.status = kConnecting;
+        [self.centralManager connectPeripheral:peripheral options:nil];
+    } else {
+        NSLog(@"Error: Unexpected condition - endScanForHermesController request while Bluetooth is in state %d (%s)",
+              (int)self.centralManager.state, [self centralManagerStateToString:self.centralManager.state]);
     }
 }
 

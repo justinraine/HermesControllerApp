@@ -10,7 +10,6 @@
 		87B1833B1AB917DE00BB2515 /* StopMotionModeTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 87B1833A1AB917DE00BB2515 /* StopMotionModeTableViewController.m */; };
 		87B183401AB91DCE00BB2515 /* HelpViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 87B1833F1AB91DCE00BB2515 /* HelpViewController.m */; };
 		87B183461AB92DAE00BB2515 /* StopMotionModeReviewViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 87B183451AB92DAE00BB2515 /* StopMotionModeReviewViewController.m */; };
-		87B183491AB9357D00BB2515 /* ConnectionHelperViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 87B183481AB9357D00BB2515 /* ConnectionHelperViewController.m */; };
 		D03958661AB4F6E0001F6A4D /* TimeLapseModeTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D03958651AB4F6E0001F6A4D /* TimeLapseModeTableViewController.m */; };
 		D03958691AB4F9B3001F6A4D /* LabeledPickerView.m in Sources */ = {isa = PBXBuildFile; fileRef = D03958681AB4F9B3001F6A4D /* LabeledPickerView.m */; };
 		D04067C01AC084140088AA7B /* VMHPacket.m in Sources */ = {isa = PBXBuildFile; fileRef = D04067BF1AC084140088AA7B /* VMHPacket.m */; };
@@ -47,8 +46,6 @@
 		87B1833F1AB91DCE00BB2515 /* HelpViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HelpViewController.m; sourceTree = "<group>"; };
 		87B183441AB92DAE00BB2515 /* StopMotionModeReviewViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StopMotionModeReviewViewController.h; sourceTree = "<group>"; };
 		87B183451AB92DAE00BB2515 /* StopMotionModeReviewViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = StopMotionModeReviewViewController.m; sourceTree = "<group>"; };
-		87B183471AB9357D00BB2515 /* ConnectionHelperViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ConnectionHelperViewController.h; sourceTree = "<group>"; };
-		87B183481AB9357D00BB2515 /* ConnectionHelperViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ConnectionHelperViewController.m; sourceTree = "<group>"; };
 		D03958641AB4F6E0001F6A4D /* TimeLapseModeTableViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TimeLapseModeTableViewController.h; sourceTree = "<group>"; };
 		D03958651AB4F6E0001F6A4D /* TimeLapseModeTableViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TimeLapseModeTableViewController.m; sourceTree = "<group>"; };
 		D03958671AB4F9B3001F6A4D /* LabeledPickerView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LabeledPickerView.h; sourceTree = "<group>"; };
@@ -183,12 +180,12 @@
 		D05DD6AA1AAF749B0088AF10 /* Model */ = {
 			isa = PBXGroup;
 			children = (
-				D04067BE1AC084140088AA7B /* VMHPacket.h */,
-				D04067BF1AC084140088AA7B /* VMHPacket.m */,
 				D05DD6AE1AAF8CE10088AF10 /* VMHHermesControllerManager.h */,
 				D05DD6AF1AAF8CE10088AF10 /* VMHHermesControllerManager.m */,
 				D0EF9E4E1ACB9C4D006A298E /* VMHPeripheral.h */,
 				D0EF9E4F1ACB9C4D006A298E /* VMHPeripheral.m */,
+				D04067BE1AC084140088AA7B /* VMHPacket.h */,
+				D04067BF1AC084140088AA7B /* VMHPacket.m */,
 				D05DD6B11AB0D4130088AF10 /* BLEInterface.h */,
 				D05DD6B21AB0D4130088AF10 /* BLEInterface.m */,
 				D05DD6A71AAEAB750088AF10 /* BluetoothInterface1.h */,
@@ -207,8 +204,6 @@
 				87B183391AB917DE00BB2515 /* StopMotionModeTableViewController.h */,
 				87B1833A1AB917DE00BB2515 /* StopMotionModeTableViewController.m */,
 				87B1833D1AB9180D00BB2515 /* Stop Motion Mode */,
-				87B183471AB9357D00BB2515 /* ConnectionHelperViewController.h */,
-				87B183481AB9357D00BB2515 /* ConnectionHelperViewController.m */,
 				87B1833E1AB91DCE00BB2515 /* HelpViewController.h */,
 				87B1833F1AB91DCE00BB2515 /* HelpViewController.m */,
 				D0F2346E1AB7DBF600E6D609 /* PositionViewController.h */,
@@ -321,7 +316,6 @@
 			files = (
 				87B183461AB92DAE00BB2515 /* StopMotionModeReviewViewController.m in Sources */,
 				D0EF9E501ACB9C4D006A298E /* VMHPeripheral.m in Sources */,
-				87B183491AB9357D00BB2515 /* ConnectionHelperViewController.m in Sources */,
 				D0421B7D1AA96CA50069C601 /* AppDelegate.m in Sources */,
 				D0421B7A1AA96CA50069C601 /* main.m in Sources */,
 				D05DD6B31AB0D4130088AF10 /* BLEInterface.m in Sources */,
