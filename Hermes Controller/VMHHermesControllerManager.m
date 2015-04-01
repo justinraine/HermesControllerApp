@@ -8,7 +8,6 @@
 
 #import "VMHHermesControllerManager.h"
 @import CoreBluetooth;
-#import "VMHCentral.h"
 #import "VMHPeripheral.h"
 #import "Constants.h"
 #import "BLEInterface.h"
@@ -19,6 +18,7 @@
 @property (nonatomic, strong) BLEInterface *BLEInterface;
 @property (nonatomic, strong) CBCentralManager *centralManager;
 @property (nonatomic, strong) CBPeripheral *connectedPeripheral;
+@property (nonatomic, getter=isReadyForCommand) BOOL readyForCommand;
 @property (nonatomic, getter=isWaitingToScan) BOOL waitingToScan;
 @property ControllerStatus status;
 @property NSUInteger previouslyDiscoveredHermesControllersCount;
@@ -39,9 +39,9 @@ static int scanTimeoutSecond = 15; // CBCentralManager scan timeout duration
     if (self) {
         self.BLEInterface = [[BLEInterface alloc] initWithDelegate:self];
         self.centralManager = [[CBCentralManager alloc]
-                               initWithDelegate:[[VMHCentral alloc] init]
+                               initWithDelegate:self
                                queue:nil
-                               options:@{CBCentralManagerOptionRestoreIdentifierKey:@"BLESericeBrowser"}];
+                               options:nil /*@{CBCentralManagerOptionRestoreIdentifierKey:@"BLESericeBrowser"}*/];
         self.status = kIdle; //*** necessary?
         self.discoveredHermesControllers = [NSMutableArray array];
     }
@@ -52,6 +52,8 @@ static int scanTimeoutSecond = 15; // CBCentralManager scan timeout duration
 
 #pragma mark - Utility Methods
 
+
+// Returns singleton instance of VMHHermesControllerManager
 + (VMHHermesControllerManager *)sharedInstance {
     static VMHHermesControllerManager *sharedInstance;
     static dispatch_once_t onceToken;
@@ -64,16 +66,25 @@ static int scanTimeoutSecond = 15; // CBCentralManager scan timeout duration
 }
 
 
+// Checks status of Bluetooth interface and begins scan if possible otherwise reports an error
 - (void)scanForHermesController {
     if ([self isReadyForCommand]) {
         NSLog(@"Scanning for Bluetooth peripherals with UUID %@", kUARTServiceUUIDString);
         
+        [NSTimer scheduledTimerWithTimeInterval:scanTimeoutSecond
+                                         target:self
+                                       selector:@selector(scanTimer:)
+                                       userInfo:nil
+                                        repeats:NO];
+        
         NSArray *services = @[[CBUUID UUIDWithString:kUARTServiceUUIDString]];
         [self.centralManager scanForPeripheralsWithServices:services options:nil];
+        self.status = kScanning;
     } else {
-        NSLog(@"Could not complete scan request. Request queued. Bluetooth state: %d (%s)",
+        NSLog(@"Could not complete scan request -- request queued. Bluetooth state: %d (%s)",
               (int)self.centralManager.state, [self centralManagerStateToString:self.centralManager.state]);
         self.waitingToScan = YES;
+        self.status = kIdle;
     }
 }
 
@@ -118,7 +129,12 @@ static int scanTimeoutSecond = 15; // CBCentralManager scan timeout duration
 
 
 - (CBPeripheral *)getConnectedHermesController {
-    return self.BLEInterface.connectedPeripheral;
+    if (self.connectedPeripheral) {
+        return self.BLEInterface.connectedPeripheral;
+    } else {
+        NSLog(@"Hermes Controller is not connected");
+        return nil;
+    }
 }
 
 
@@ -232,6 +248,94 @@ static int scanTimeoutSecond = 15; // CBCentralManager scan timeout duration
 //}
 
 
+
+#pragma mark - CBCentralManagerDelegate Methods
+
+/*--------------------------------------------------------------------------------------------------
+ *
+ *                              CBCentralManagerDelegate Methods
+ *
+ *------------------------------------------------------------------------------------------------*/
+
+- (void) centralManagerDidUpdateState:(CBCentralManager *)central {
+    self.readyForCommand = NO;
+    
+    switch (central.state) {
+        case CBCentralManagerStatePoweredOff:
+            NSLog(@"CoreBluetooth BLE hardware is powered off");
+            break;
+        case CBCentralManagerStatePoweredOn:
+            NSLog(@"CoreBluetooth BLE hardware is powered on and ready");
+            self.readyForCommand = YES;
+            
+            if ([self isWaitingToScan]) {
+                NSArray *services = @[[CBUUID UUIDWithString:kUARTServiceUUIDString]];
+                [self.centralManager scanForPeripheralsWithServices:services options:nil];
+            }
+            break;
+        case CBCentralManagerStateResetting:
+            NSLog(@"CoreBluetooth BLE hardware is resetting");
+            break;
+        case CBCentralManagerStateUnauthorized:
+            NSLog(@"CoreBluetooth BLE state is unauthorized");
+            break;
+        case CBCentralManagerStateUnknown:
+            NSLog(@"CoreBluetooth BLE state is unknown");
+            break;
+        case CBCentralManagerStateUnsupported:
+            NSLog(@"CoreBluetooth BLE hardware is unsupported on this platform");
+            break;
+        default:
+            NSLog(@"Error: Could not determine CoreBluetooth BLE state");
+            break;
+    }
+}
+
+
+//- (void)centralManager:(CBCentralManager *)central willRestoreState:(NSDictionary *)dict {
+//    self.peripherals = dict[CBCentralManagerRestoredStatePeripheralsKey];
+//    
+//}
+
+- (void)centralManager:(CBCentralManager *)central didDiscoverPeripheral:(CBPeripheral *)peripheral
+     advertisementData:(NSDictionary *)advertisementData RSSI:(NSNumber *)RSSI {
+    NSLog(@"Found peripheral with UUID : %@\n\n", [[peripheral identifier] UUIDString]);
+    
+    NSDictionary *newlyDiscoveredPeripheral = @{@"peripheral"        : peripheral,
+                                                @"advertisementData" : advertisementData,
+                                                @"RSSI"              : RSSI};
+    
+    // Add to discoveredHermesControllers -> KVO notification triggers user prompt to connect
+    [self willChange:NSKeyValueChangeInsertion valuesAtIndexes:0 forKey:@"discoveredHermesControllers"]; //*** Manual invokation of KVO notifications.  Does it work?!
+    [self.discoveredHermesControllers insertObject:newlyDiscoveredPeripheral atIndex:0];
+    [self didChange:NSKeyValueChangeInsertion valuesAtIndexes:0 forKey:@"discoveredHermesControllers"]; //***
+}
+
+
+- (void)centralManager:(CBCentralManager *)central didConnectPeripheral:(CBPeripheral *)peripheral {
+    NSLog(@"Connected to peripheral with UUID : %@\n\n", [[peripheral identifier] UUIDString]);
+    self.connectedPeripheral = peripheral;
+}
+
+
+- (void)centralManager:(CBCentralManager *)central didFailToConnectPeripheral:(CBPeripheral *)peripheral error:(NSError *)error {
+    NSLog(@"Failed to connect to peripheral with UUID : %@\n\n", [[peripheral identifier] UUIDString]);
+    self.connectedPeripheral = nil;
+}
+
+
+/*
+ Invoked whenever an existing connection with the peripheral is torn down.
+ */
+- (void)centralManager:(CBCentralManager *)central didDisconnectPeripheral:(CBPeripheral *)peripheral error:(NSError *)error {
+    if (error) {
+        NSLog(@"Error: %@. Unexpectedly disconnected from peripheral with UUID: %@\n\n", [error localizedDescription], [[peripheral identifier] UUIDString]);
+    } else {
+        NSLog(@"Successfully disconnected from peripheral with UUID : %@\n\n", [[peripheral identifier] UUIDString]);
+    }
+    
+    self.connectedPeripheral = nil;
+}
 
 #pragma  mark - BluetoothInterface Delegate Methods
 

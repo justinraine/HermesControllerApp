@@ -31,7 +31,6 @@ typedef NS_ENUM(NSUInteger, MoveDirection) {
 // Public Properties
 @property (nonatomic, strong) NSMutableArray *discoveredHermesControllers;
 @property (readonly) ControllerStatus status;
-@property (nonatomic, getter=isReadyForCommand) BOOL readyForCommand;
 
 
 // Public Methods
