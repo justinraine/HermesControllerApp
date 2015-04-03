@@ -14,6 +14,6 @@ extern NSString *const kSetStartPositionKey;
 
 @interface PositionViewController : UIViewController
 
-@property (getter=isSetStartPosition) BOOL setStartPosition;
+@property (getter=isSetStartPosition) BOOL setStartPosition; // false == setEndPosition
 
 @end

@@ -7,10 +7,8 @@
 //
 
 #import "HelpViewController.h"
-#import "LabeledPickerView.h"
 
 @interface HelpViewController ()
-
 
 @end
 

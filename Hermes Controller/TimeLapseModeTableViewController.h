@@ -7,8 +7,7 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "MBProgressHUD.h"
 
-@interface TimeLapseModeTableViewController : UITableViewController <UITableViewDelegate, UIPickerViewDelegate, UIPickerViewDataSource, MBProgressHUDDelegate>
+@interface TimeLapseModeTableViewController : UITableViewController <UITableViewDelegate, UIPickerViewDelegate, UIPickerViewDataSource>
 
 @end

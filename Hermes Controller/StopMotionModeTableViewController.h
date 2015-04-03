@@ -9,6 +9,6 @@
 #import <UIKit/UIKit.h>
 #import "MBProgressHUD.h"
 
-@interface StopMotionModeTableViewController : UITableViewController <UITableViewDelegate, UIPickerViewDelegate, UIPickerViewDataSource, MBProgressHUDDelegate>
+@interface StopMotionModeTableViewController : UITableViewController <UITableViewDelegate, UIPickerViewDelegate, UIPickerViewDataSource>
 
 @end

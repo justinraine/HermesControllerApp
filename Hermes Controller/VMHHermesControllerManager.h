@@ -8,7 +8,6 @@
 
 #import <Foundation/Foundation.h>
 @import CoreBluetooth;
-#import "BLEInterface.h"
 
 typedef NS_ENUM(NSUInteger, ControllerStatus) {
     kScanning,
@@ -19,32 +18,27 @@ typedef NS_ENUM(NSUInteger, ControllerStatus) {
     kTimeout,
     kIdle,
     kBluetoothPoweredOff,
+    kUnsupported,
     kError,
 };
 
-@interface VMHHermesControllerManager : NSObject <CBCentralManagerDelegate, BLEInterfaceDelegateProtocol>
+@interface VMHHermesControllerManager : NSObject <CBCentralManagerDelegate, CBPeripheralDelegate>
 
 // Public Properties
 @property (nonatomic, strong) NSMutableArray *discoveredHermesControllers;
 @property (readonly) ControllerStatus status;
 
 
-// Public Methods
-
 // Utility Methods
 + (VMHHermesControllerManager *)sharedInstance;
-//- (void)scanForHermesController;
-//- (void)endScanForHermesController;
-//- (void)continueScanForHermesController;
-//- (void)connectToHermesController:(CBPeripheral *)peripheral;
 - (void)connectToNearbyHermesController;
 - (CBPeripheral *)getConnectedHermesController;
 
 // Operational Methods
 - (BOOL)beginRecording;
 - (BOOL)endRecording;
-- (BOOL)beginMovingRight;
-- (BOOL)beginMovingLeft;
+- (BOOL)beginMovementRight;
+- (BOOL)beginMovementLeft;
 - (BOOL)endMovement;
 - (BOOL)beginTimeLapseWithDuration:(NSInteger)durationSeconds
                      startPosition:(NSInteger)start

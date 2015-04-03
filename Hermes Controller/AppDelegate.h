@@ -7,11 +7,16 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "MBProgressHUD.h"
 
-@interface AppDelegate : UIResponder <UIApplicationDelegate>
+@interface AppDelegate : UIResponder <UIApplicationDelegate, UIAlertViewDelegate>
 
 @property (nonatomic, strong) UIWindow *window;
 
+- (void)showBasicHUD;
+- (void)showCaptureHUD;
+- (void)updateCaptureProgress:(int)progress;
+- (void)hideHUD;
 
 @end
 

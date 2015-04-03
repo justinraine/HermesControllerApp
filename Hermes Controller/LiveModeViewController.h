@@ -8,6 +8,6 @@
 
 #import <UIKit/UIKit.h>
 
-@interface LiveModeViewController : UIViewController <UIAlertViewDelegate>
+@interface LiveModeViewController : UIViewController
 
 @end

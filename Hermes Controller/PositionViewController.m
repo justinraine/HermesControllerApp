@@ -7,14 +7,17 @@
 //
 
 #import "PositionViewController.h"
+#import "VMHHermesControllerManager.h"
 
-NSString *const kPositionUpdateNotification = @"positionSetNotification";
+NSString *const kPositionUpdateNotification = @"positionUpdateNotification";
 NSString *const kPositionStepsKey = @"positionStepsKey";
 NSString *const kSetStartPositionKey = @"setStartPositionKey";
 
 @interface PositionViewController ()
 
 @property (nonatomic, weak) IBOutlet UILabel *message;
+@property (nonatomic, weak) IBOutlet UIButton *leftButton;
+@property (nonatomic, weak) IBOutlet UIButton *rightButton;
 @property (nonatomic, strong) NSNumber *currentPosition;
 
 @end
@@ -38,7 +41,7 @@ NSString *const kSetStartPositionKey = @"setStartPositionKey";
 }
 
 - (IBAction)setPosition:(id)sender {
-    self.currentPosition = [NSNumber numberWithInt:arc4random() % 3000]; // get response from Controller
+    self.currentPosition = [NSNumber numberWithInt:arc4random() % 2200]; // get response from Controller
     NSLog(@"Position set: %@ ** Dummy Value **", self.currentPosition);
     
     NSDictionary *currentPosition = @{kPositionStepsKey : self.currentPosition,
@@ -48,12 +51,25 @@ NSString *const kSetStartPositionKey = @"setStartPositionKey";
     [self dismissViewControllerAnimated:YES completion:nil];
 }
 
-- (IBAction)moveLeft:(id)sender {
-    NSLog(@"Move left command sent ** Not Impemented **");
+- (IBAction)startLeftMovement:(id)sender {
+    NSLog(@"Left button pressed -- Send command to Arduino to begin moving left");
+    [[VMHHermesControllerManager sharedInstance] beginMovementLeft];
 }
 
-- (IBAction)moveRight:(id)sender {
-    NSLog(@"Move right command sent ** Not Impemented **");
+
+- (IBAction)startRightMovement:(id)sender {
+    NSLog(@"Right button pressed -- Send command to Arduino to begin moving right");
+    [[VMHHermesControllerManager sharedInstance] beginMovementRight];
+}
+
+
+- (IBAction)endMovement:(id)sender {
+    if (sender == self.leftButton) {
+        NSLog(@"Left button depressed -- Send command to Arduino to stop moving left");
+    } else {
+        NSLog(@"Right button depressed -- Send command to Arduino to stop moving right");
+    }
+    [[VMHHermesControllerManager sharedInstance] endMovement];
 }
 
 

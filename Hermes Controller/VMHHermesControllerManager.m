@@ -8,16 +8,15 @@
 
 #import "VMHHermesControllerManager.h"
 @import CoreBluetooth;
-#import "VMHPeripheral.h"
-#import "Constants.h"
-#import "BLEInterface.h"
 #import "VMHPacket.h"
+#import "Constants.h"
+
 
 @interface VMHHermesControllerManager()
 
-//@property (nonatomic, strong) BLEInterface *BLEInterface;
 @property (nonatomic, strong) CBCentralManager *centralManager;
 @property (nonatomic, strong) CBPeripheral *connectedPeripheral;
+@property (nonatomic, strong) CBPeripheral *discoveredPeripheral;
 @property (nonatomic, strong) CBCharacteristic *txCharacteristic;
 @property (nonatomic, strong) CBCharacteristic *rxCharacteristic;
 @property (nonatomic, strong) VMHPacket *packet;
@@ -31,7 +30,7 @@
 
 @implementation VMHHermesControllerManager
 
-static int scanTimeoutSecond = 15;
+static int scanTimeoutSecond = 2;
 //@synthesize status;
 
 #pragma mark - Lifecycle
@@ -46,7 +45,7 @@ static int scanTimeoutSecond = 15;
                                queue:nil
                                options:nil /*@{CBCentralManagerOptionRestoreIdentifierKey:@"BLESericeBrowser"}*/];
         self.txCharacteristic = [[CBMutableCharacteristic alloc] initWithType:[CBUUID UUIDWithString:kTransmitCharacteristicUUIDString]
-                                                                   properties:CBCharacteristicPropertyWrite
+                                                                   properties:CBCharacteristicPropertyWriteWithoutResponse
                                                                         value:nil
                                                                   permissions:CBAttributePermissionsWriteable];
         self.rxCharacteristic = [[CBMutableCharacteristic alloc] initWithType:[CBUUID UUIDWithString:kReceiveCharacteristicUUIDString]
@@ -84,19 +83,7 @@ static int scanTimeoutSecond = 15;
 // Checks status of Bluetooth interface and begins scan if possible otherwise reports an error
 - (void)connectToNearbyHermesController {
     if ([self isReadyForCommand]) {
-        NSLog(@"Scanning for Bluetooth peripherals with UUID %@", kUARTServiceUUIDString);
-        
-        // Begin scan timeout timer
-        [NSTimer scheduledTimerWithTimeInterval:scanTimeoutSecond
-                                         target:self
-                                       selector:@selector(scanTimer:)
-                                       userInfo:nil
-                                        repeats:NO];
-        
-        // Begin scanning
-        NSArray *services = @[[CBUUID UUIDWithString:kUARTServiceUUIDString]];
-        [self.centralManager scanForPeripheralsWithServices:services options:nil];
-        self.status = kScanning;
+        [self beginScan];
     } else {
         NSLog(@"Could not complete scan request -- request queued. Bluetooth state: %d (%s)",
               (int)self.centralManager.state, [self centralManagerStateToString:self.centralManager.state]);
@@ -107,11 +94,10 @@ static int scanTimeoutSecond = 15;
 
 - (CBPeripheral *)getConnectedHermesController {
     if (self.connectedPeripheral) {
-        return self.connectedPeripheral;
-    } else {
         NSLog(@"Hermes Controller is not connected");
-        return nil;
     }
+    
+    return self.connectedPeripheral;
 }
 
 /* Old Methods
@@ -164,9 +150,10 @@ static int scanTimeoutSecond = 15;
 - (BOOL)beginRecording {
     if (self.status == kConnected) {
         [self.packet configureRecordingPacketWithStatus:RecordingBegin];
+        [self.packet printPacket];
         [self.connectedPeripheral writeValue:[self.packet dataFormat]
                            forCharacteristic:self.txCharacteristic
-                                        type:CBCharacteristicWriteWithResponse];
+                                        type:CBCharacteristicWriteWithoutResponse];
         return YES;
     } else {
         return NO;
@@ -177,9 +164,10 @@ static int scanTimeoutSecond = 15;
 - (BOOL)endRecording {
     if (self.status == kConnected) {
         [self.packet configureRecordingPacketWithStatus:RecordingEnd];
+        [self.packet printPacket];
         [self.connectedPeripheral writeValue:[self.packet dataFormat]
                            forCharacteristic:self.txCharacteristic
-                                        type:CBCharacteristicWriteWithResponse];
+                                        type:CBCharacteristicWriteWithoutResponse];
         return YES;
     } else {
         return NO;
@@ -187,12 +175,12 @@ static int scanTimeoutSecond = 15;
 }
 
 
-- (BOOL)beginMovingLeft {
+- (BOOL)beginMovementLeft {
     if (self.status == kConnected) {
         [self.packet configureMovementPacketWithDirection:MovementLeft];
         [self.connectedPeripheral writeValue:[self.packet dataFormat]
                            forCharacteristic:self.txCharacteristic
-                                        type:CBCharacteristicWriteWithResponse];
+                                        type:CBCharacteristicWriteWithoutResponse];
         return YES;
     } else {
         return NO;
@@ -200,12 +188,12 @@ static int scanTimeoutSecond = 15;
 }
 
 
-- (BOOL)beginMovingRight {
+- (BOOL)beginMovementRight {
     if (self.status == kConnected) {
         [self.packet configureMovementPacketWithDirection:MovementRight];
         [self.connectedPeripheral writeValue:[self.packet dataFormat]
                            forCharacteristic:self.txCharacteristic
-                                        type:CBCharacteristicWriteWithResponse];
+                                        type:CBCharacteristicWriteWithoutResponse];
         return YES;
     } else {
         return NO;
@@ -218,7 +206,7 @@ static int scanTimeoutSecond = 15;
         [self.packet configureMovementPacketWithDirection:MovementStop];
         [self.connectedPeripheral writeValue:[self.packet dataFormat]
                            forCharacteristic:self.txCharacteristic
-                                        type:CBCharacteristicWriteWithResponse];
+                                        type:CBCharacteristicWriteWithoutResponse];
         return YES;
     } else {
         return NO;
@@ -313,9 +301,7 @@ static int scanTimeoutSecond = 15;
             self.status = kIdle;
             
             if ([self isWaitingToScan]) {
-                self.status = kScanning;
-                NSArray *services = @[[CBUUID UUIDWithString:kUARTServiceUUIDString]];
-                [self.centralManager scanForPeripheralsWithServices:services options:nil];
+                [self beginScan];
             }
             break;
         case CBCentralManagerStateResetting:
@@ -332,7 +318,7 @@ static int scanTimeoutSecond = 15;
             break;
         case CBCentralManagerStateUnsupported:
             NSLog(@"CoreBluetooth BLE hardware is unsupported on this platform");
-            self.status = kError;
+            self.status = kUnsupported;
             break;
         default:
             NSLog(@"Error: Could not determine CoreBluetooth BLE state");
@@ -345,21 +331,26 @@ static int scanTimeoutSecond = 15;
 // Automatically connects to discovered peripherals
 - (void)centralManager:(CBCentralManager *)central didDiscoverPeripheral:(CBPeripheral *)peripheral
      advertisementData:(NSDictionary *)advertisementData RSSI:(NSNumber *)RSSI {
-    NSLog(@"Found peripheral with UUID : %@\n\n", [[peripheral identifier] UUIDString]);
+    NSLog(@"Found %@ peripheral with UUID: %@\n", peripheral.name, [[peripheral identifier] UUIDString]);
     
-    [self connectToHermesController:peripheral];
+    self.discoveredPeripheral = peripheral;
+    self.discoveredPeripheral.delegate = self;
+    [self connectToHermesController:self.discoveredPeripheral];
 }
 
 
 - (void)centralManager:(CBCentralManager *)central didConnectPeripheral:(CBPeripheral *)peripheral {
-    NSLog(@"Connected to peripheral with UUID : %@\n\n", [[peripheral identifier] UUIDString]);
+    NSLog(@"Connected to %@ peripheral with UUID : %@", peripheral.name, [[peripheral identifier] UUIDString]);
     self.connectedPeripheral = peripheral;
+    self.connectedPeripheral.delegate = self;
     self.status = kConnected;
+    
+    [self.connectedPeripheral discoverServices:@[[CBUUID UUIDWithString:kUARTServiceUUIDString]]];
 }
 
 
 - (void)centralManager:(CBCentralManager *)central didFailToConnectPeripheral:(CBPeripheral *)peripheral error:(NSError *)error {
-    NSLog(@"Failed to connect to peripheral with UUID : %@\n\n", [[peripheral identifier] UUIDString]);
+    NSLog(@"Failed to connect to %@ peripheral with UUID : %@\n\n", peripheral.name, [[peripheral identifier] UUIDString]);
     self.connectedPeripheral = nil;
     self.status = kConnectionFailed;
 }
@@ -378,6 +369,141 @@ static int scanTimeoutSecond = 15;
     self.connectedPeripheral = nil;
     self.status = kDisconnected;
 }
+
+
+
+#pragma mark - CBPeripheralDelegate Protocol Methods
+
+/*
+ *  @method didDiscoverCharacteristicsForService
+ *
+ *  @param peripheral Pheripheral that got updated
+ *  @param service Service that characteristics where found on
+ *  @error error Error message if something went wrong
+ *
+ *  @discussion didDiscoverCharacteristicsForService is called when CoreBluetooth has discovered
+ *  characteristics on a service, on a peripheral after the discoverCharacteristics routine has been called on the service
+ *
+ */
+
+- (void)peripheral:(CBPeripheral *)peripheral didDiscoverCharacteristicsForService:(CBService *)service error:(NSError *)error {
+    if (!error) {
+        NSLog(@"Characteristics of service with UUID : %@ found\n\n", [service.UUID.data description]);
+        
+        // Deal with errors (if any)
+        if (error) {
+            NSLog(@"Error discovering characteristics: %@", [error localizedDescription]);
+            return;
+        }
+        
+        // Again, we loop through the array, just in case.
+        for (CBCharacteristic *characteristic in service.characteristics) {
+            if ([characteristic.UUID isEqual:[CBUUID UUIDWithString:kTransmitCharacteristicUUIDString]]) {
+                self.txCharacteristic = characteristic;
+                NSLog(@"Transmit characteristic found");
+            } else if ([characteristic.UUID isEqual:[CBUUID UUIDWithString:kReceiveCharacteristicUUIDString]]) {
+                self.rxCharacteristic = characteristic;
+                [peripheral setNotifyValue:YES forCharacteristic:characteristic];
+                NSLog(@"Receive characteristic found");
+            }
+        }
+    } else {
+        NSLog(@"Characteristic discorvery unsuccessful!\n\n");
+    }
+}
+
+- (void)peripheral:(CBPeripheral *)peripheral didDiscoverDescriptorsForCharacteristic:(CBCharacteristic *)characteristic error:(NSError *)error {
+    
+}
+
+- (void)peripheral:(CBPeripheral *)peripheral didDiscoverIncludedServicesForService:(CBService *)service error:(NSError *)error {
+    
+}
+
+/*
+ *  @method didDiscoverServices
+ *
+ *  @param peripheral Pheripheral that got updated
+ *  @error error Error message if something went wrong
+ *
+ *  @discussion didDiscoverServices is called when CoreBluetooth has discovered services on a
+ *  peripheral after the discoverServices routine has been called on the peripheral
+ *
+ */
+
+- (void)peripheral:(CBPeripheral *)peripheral didDiscoverServices:(NSError *)error {
+    if (!error) {
+        printf("Services of peripheral with UUID : %s found\r\n",[[[peripheral identifier] UUIDString] UTF8String]);
+        for (CBService *service in peripheral.services) {
+            NSLog(@"Discovered service: %@", service.UUID);
+            [peripheral discoverCharacteristics:nil forService:service];
+        }
+    } else {
+        printf("Service discovery was unsuccessfull !\r\n");
+    }
+}
+
+/*
+ *  @method didUpdateNotificationStateForCharacteristic
+ *
+ *  @param peripheral Pheripheral that got updated
+ *  @param characteristic Characteristic that got updated
+ *  @error error Error message if something went wrong
+ *
+ *  @discussion didUpdateNotificationStateForCharacteristic is called when CoreBluetooth has updated a
+ *  notification state for a characteristic
+ *
+ */
+
+- (void)peripheral:(CBPeripheral *)peripheral didUpdateNotificationStateForCharacteristic:(CBCharacteristic *)characteristic error:(NSError *)error {
+    //    if (!error) {
+    //        printf("Updated notification state for characteristic with UUID %s on service with  UUID %s on peripheral with UUID %s\r\n",[self CBUUIDToString:characteristic.UUID],[self CBUUIDToString:characteristic.service.UUID],[[[peripheral identifier] UUIDString] UTF8String]);
+    //    }
+    //    else {
+    //        printf("Error in setting notification state for characteristic with UUID %s on service with  UUID %s on peripheral with UUID %s\r\n",[self CBUUIDToString:characteristic.UUID],[self CBUUIDToString:characteristic.service.UUID],[[[peripheral identifier] UUIDString] UTF8String]);
+    //        printf("Error code was %s\r\n",[[error description] cStringUsingEncoding:NSStringEncodingConversionAllowLossy]);
+    //    }
+    
+}
+
+/*
+ *  @method didUpdateValueForCharacteristic
+ *
+ *  @param peripheral Pheripheral that got updated
+ *  @param characteristic Characteristic that got updated
+ *  @error error Error message if something went wrong
+ *
+ *  @discussion didUpdateValueForCharacteristic is called when CoreBluetooth has updated a
+ *  characteristic for a peripheral. All reads and notifications come here to be processed.
+ *
+ */
+
+- (void)peripheral:(CBPeripheral *)peripheral didUpdateValueForCharacteristic:(CBCharacteristic *)characteristic error:(NSError *)error {
+    if (!error) {
+        printf("Services of peripheral with UUID : %s found\r\n",[[[peripheral identifier] UUIDString] UTF8String]);
+    }
+    else {
+        printf("updateValueForCharacteristic failed !");
+    }
+    
+}
+
+- (void)peripheral:(CBPeripheral *)peripheral didUpdateValueForDescriptor:(CBDescriptor *)descriptor error:(NSError *)error {
+    
+}
+
+- (void)peripheral:(CBPeripheral *)peripheral didWriteValueForCharacteristic:(CBCharacteristic *)characteristic error:(NSError *)error {
+    NSLog(@"Successfully wrote to characteristic UUID: %@", characteristic.UUID);
+}
+
+- (void)peripheral:(CBPeripheral *)peripheral didWriteValueForDescriptor:(CBDescriptor *)descriptor error:(NSError *)error {
+    
+}
+
+- (void)peripheralDidUpdateRSSI:(CBPeripheral *)peripheral error:(NSError *)error {
+    //NSLog(@"Peripheral RSSI updated: %@", peripheral.RSSI);
+}
+
 
 
 
@@ -416,6 +542,22 @@ static int scanTimeoutSecond = 15;
     return "Unknown state";
 }
 
+- (void)beginScan {
+    NSLog(@"Scanning for Bluetooth peripherals with UUID: %@\n", kUARTServiceUUIDString);
+    
+    // Begin scan timeout timer
+    [NSTimer scheduledTimerWithTimeInterval:scanTimeoutSecond
+                                     target:self
+                                   selector:@selector(scanTimer)
+                                   userInfo:nil
+                                    repeats:NO];
+    
+    // Begin scanning
+    NSArray *services = @[[CBUUID UUIDWithString:kUARTServiceUUIDString]];
+    [self.centralManager scanForPeripheralsWithServices:services options:nil];
+    self.status = kScanning;
+}
+
 
 - (void)scanTimer {
     if (self.status == kScanning) {
@@ -442,7 +584,7 @@ static int scanTimeoutSecond = 15;
 
 - (void)connectToHermesController:(CBPeripheral *)peripheral {
     if ([self isReadyForCommand]) {
-        NSLog(@"Attempting to connect to %@", peripheral.name);
+        NSLog(@"Attempting to connect to %@ peripheral\n", peripheral.name);
         
         self.status = kConnecting;
         [self.centralManager connectPeripheral:peripheral options:nil];

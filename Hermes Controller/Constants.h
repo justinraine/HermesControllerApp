@@ -16,9 +16,4 @@ extern NSString *const kUARTServiceUUIDString;
 extern NSString *const kTransmitCharacteristicUUIDString;
 extern NSString *const kReceiveCharacteristicUUIDString;
 
-// Used for BLEInterface calls which request the UUID of service/characteristic in integer format
-extern int const kUARTServiceUUIDInt;
-extern int const kTransmitCharacteristicUUIDInt;
-extern int const kReceiveCharacteristicUUIDInt;
-
 #endif

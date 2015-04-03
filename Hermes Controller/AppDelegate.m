@@ -8,16 +8,37 @@
 
 #import "AppDelegate.h"
 #import "VMHHermesControllerManager.h"
+#import "Constants.h"
+#import "DeviceUnsupportedViewController.h"
+#import "ConnectionViewController.h"
+
+NS_ENUM(NSInteger, alertTag) {
+    kUnsupportedTag,
+    kConnectionUnsuccessfulTag
+};
 
 @interface AppDelegate ()
+
+@property (nonatomic, strong) MBProgressHUD *HUD;
+@property (nonatomic, getter=isConnectionViewDisplayed) BOOL connectionViewDisplayed;
 
 @end
 
 @implementation AppDelegate
 
+#pragma mark - AppDelegate Methods
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
-    // Override point for customization after application launch.
+    // Setup KVO notifications from HermesControllerManager
+    [[VMHHermesControllerManager sharedInstance] addObserver:self
+                                                  forKeyPath:@"status"
+                                                     options:0
+                                                     context:nil];
+    
+    [self.window makeKeyAndVisible];
+    [self showBasicHUD];
+    [[VMHHermesControllerManager sharedInstance] connectToNearbyHermesController];
+    
     return YES;
 }
 
@@ -43,4 +64,184 @@
     // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
 }
 
+
+
+#pragma mark - Public Methods
+
+- (void)showBasicHUD {
+    [self HUDSetup];
+}
+
+- (void)showCaptureHUD {
+    [self HUDSetup];
+    self.HUD.labelText = @"Capturing...";
+    self.HUD.mode = MBProgressHUDModeAnnularDeterminate;
+}
+
+- (void)hideHUD {
+    [[UIApplication sharedApplication] endIgnoringInteractionEvents];
+    [self.HUD hide:YES];
+}
+
+- (void)updateCaptureProgress:(int)progress {
+    self.HUD.progress = progress;
+}
+
+
+
+#pragma mark - Private Methods
+
+- (void)HUDSetup {
+    // Hide any currently displaying HUD
+    [self.HUD hide:YES];
+    
+    // Display HUD
+    UIWindow *windowForHud = [[UIApplication sharedApplication] delegate].window;
+    self.HUD = [MBProgressHUD showHUDAddedTo:windowForHud animated:YES];
+    
+    // Configure basic HUD
+    self.HUD.minShowTime = 0.1;
+    self.HUD.labelText = @"";
+    self.HUD.detailsLabelText = @"";
+    self.HUD.mode = MBProgressHUDModeIndeterminate;
+    
+    [[UIApplication sharedApplication] beginIgnoringInteractionEvents];
+}
+
+
+// Alert response handler function
+- (void)alertView:(UIAlertView *)alertView didDismissWithButtonIndex:(NSInteger)buttonIndex {
+    if (alertView.tag == kConnectionUnsuccessfulTag) {
+        UIViewController *rootView = [[[UIApplication sharedApplication] keyWindow] rootViewController];
+        UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"Main" bundle:nil];
+        UINavigationController *connectionNavigationController = [storyboard instantiateViewControllerWithIdentifier:@"ConnectionNav"];
+        
+        if(![self isConnectionViewDisplayed]) {
+            self.connectionViewDisplayed = YES;
+            [rootView presentViewController:connectionNavigationController animated:YES completion:nil];
+        }
+    } else if (alertView.tag == kUnsupportedTag) {
+        [[UIApplication sharedApplication] beginIgnoringInteractionEvents];
+        
+        UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"Main" bundle:nil];
+        UIViewController *rootView = [[[UIApplication sharedApplication] keyWindow] rootViewController];
+        DeviceUnsupportedViewController *deviceUnsupportedViewController = [storyboard instantiateViewControllerWithIdentifier:@"DeviceUnsupportedView"];
+        [rootView presentViewController:deviceUnsupportedViewController animated:YES completion:nil];
+    }
+}
+
+
+- (BOOL)isShowingHUD {
+    return self.HUD.alpha > 0.0f;
+}
+
+
+- (BOOL)isConnectionViewDisplayed {
+    return _connectionViewDisplayed;
+}
+
+
+- (UIViewController*) topMostController {
+    UIViewController *topController = [UIApplication sharedApplication].keyWindow.rootViewController;
+    
+    while (topController.presentedViewController) {
+        topController = topController.presentedViewController;
+    }
+    
+    return topController;
+}
+
+
+
+#pragma mark - KVO handler
+
+- (void)observeValueForKeyPath:(NSString *)keyPath
+                      ofObject:(id)object
+                        change:(NSDictionary *)change
+                       context:(void *)context {
+    if ([keyPath isEqualToString:@"status"]) {
+        [self handleUpdatedStatus:[VMHHermesControllerManager sharedInstance].status];
+    }
+}
+
+- (void)handleUpdatedStatus:(ControllerStatus)updatedStatus {
+    if (updatedStatus == kScanning) {
+        self.HUD.labelText = @"Scanning...";
+    } else if (updatedStatus == kConnecting) {
+        self.HUD.labelText = @"Connecting...";
+    } else if (updatedStatus == kConnectionFailed) {
+        [self hideHUD];
+        [self displayUnsuccessfulAlertWithTitle:@"Connection Failed"
+                                        message:@"Unable to connect to Hermes Controller"];
+    } else if (updatedStatus == kConnected) {
+        self.HUD.customView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"37x-Checkmark.png"]];
+        self.HUD.mode = MBProgressHUDModeCustomView;
+        self.HUD.labelText = @"Connected!";
+        
+        [self.HUD show:YES];
+        
+        // Wait 1 second
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 1 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+            if ([self isConnectionViewDisplayed]) {
+                UIViewController *rootView = [[[UIApplication sharedApplication] keyWindow] rootViewController]; //***
+                [rootView dismissViewControllerAnimated:YES completion:^{
+                    self.connectionViewDisplayed = NO;
+                    [self hideHUD];
+                }];
+            } else {
+                [self hideHUD];
+            }
+        });
+    } else if (updatedStatus == kDisconnected) {
+        if ([self isShowingHUD]) {
+            [self hideHUD];
+        }
+        [self displayUnsuccessfulAlertWithTitle:@"Bluetooth Disconnection"
+                                        message:@"Hermes has been disconnected"];
+    } else if (updatedStatus == kTimeout) {
+        [self hideHUD];
+        [self displayUnsuccessfulAlertWithTitle:@"Device Not Found"
+                                        message:@"Please ensure your Hermes Controller is on and within range"];
+    } else if (updatedStatus == kIdle) {
+        // do nothing?
+    } else if (updatedStatus == kBluetoothPoweredOff) {
+        if ([self isShowingHUD]) {
+            [self hideHUD];
+        }
+        [self displayUnsuccessfulAlertWithTitle:@"Bluetooth Disabled"
+                                        message:@"Please enable Bluetooth and connect to a Hermes Controller"];
+    } else if (updatedStatus == kUnsupported) {
+        if ([self isShowingHUD]) {
+            [self hideHUD];
+        }
+        
+        UIAlertView *alert = [[UIAlertView alloc]
+                              initWithTitle:@"Bluetooth Not Supported"
+                              message:@"This device does not support Bluetooth LE"
+                              delegate:self
+                              cancelButtonTitle:@"OK"
+                              otherButtonTitles:nil];
+        alert.tag = kUnsupportedTag;
+        [alert show];
+    } else if (updatedStatus == kError) {
+        if ([self isShowingHUD]) {
+            [self hideHUD];
+        }
+        
+        [self displayUnsuccessfulAlertWithTitle:@"Bluetooth Error"
+                                        message:@"An unknown error occurred"];
+    }
+}
+
+
+- (void)displayUnsuccessfulAlertWithTitle:(NSString *)title message:(NSString *)message {
+    UIAlertView *alert = [[UIAlertView alloc]
+                          initWithTitle:title
+                          message:message
+                          delegate:self
+                          cancelButtonTitle:nil
+                          otherButtonTitles:@"OK", nil];
+    alert.tag = kConnectionUnsuccessfulTag;
+    [alert show];
+}
 @end
