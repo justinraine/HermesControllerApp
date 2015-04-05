@@ -41,7 +41,12 @@ NSString *const kSetStartPositionKey = @"setStartPositionKey";
 }
 
 - (IBAction)setPosition:(id)sender {
-    self.currentPosition = [NSNumber numberWithInt:arc4random() % 2200]; // get response from Controller
+    if (self.setStartPosition) {
+        self.currentPosition = [NSNumber numberWithInt:100];
+    } else {
+        self.currentPosition = [NSNumber numberWithInt:2000];
+    }
+    //self.currentPosition = [NSNumber numberWithInt:arc4random() % 2200]; // get response from Controller
     NSLog(@"Position set: %@ ** Dummy Value **", self.currentPosition);
     
     NSDictionary *currentPosition = @{kPositionStepsKey : self.currentPosition,

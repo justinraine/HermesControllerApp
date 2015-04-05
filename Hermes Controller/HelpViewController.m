@@ -10,6 +10,8 @@
 
 @interface HelpViewController ()
 
+@property (weak, nonatomic) IBOutlet UIWebView *webView;
+
 @end
 
 
@@ -18,6 +20,8 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
+    NSURL *url = [[NSBundle mainBundle] URLForResource:@"HelpPage" withExtension:@"html"];
+    [self.webView loadRequest:[NSURLRequest requestWithURL:url]];
 }
 
 - (void)didReceiveMemoryWarning {

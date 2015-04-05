@@ -31,6 +31,7 @@
 @implementation VMHHermesControllerManager
 
 static int scanTimeoutSecond = 2;
+int kMaxRPM = 230;
 //@synthesize status;
 
 #pragma mark - Lifecycle
@@ -94,54 +95,11 @@ static int scanTimeoutSecond = 2;
 
 - (CBPeripheral *)getConnectedHermesController {
     if (self.connectedPeripheral) {
-        NSLog(@"Hermes Controller is not connected");
+        NSLog(@"Hermes Controller is not connected\n\n");
     }
     
     return self.connectedPeripheral;
 }
-
-/* Old Methods
-- (void)scanForHermesController {
-    if ([self isReadyForCommand]) {
-        NSLog(@"Scanning for Bluetooth peripherals with UUID %@", kUARTServiceUUIDString);
-        
-        [NSTimer scheduledTimerWithTimeInterval:scanTimeoutSecond
-                                         target:self
-                                       selector:@selector(scanTimer:)
-                                       userInfo:nil
-                                        repeats:NO];
-        
-        NSArray *services = @[[CBUUID UUIDWithString:kUARTServiceUUIDString]];
-        [self.centralManager scanForPeripheralsWithServices:services options:nil];
-        self.status = kScanning;
-    } else {
-        NSLog(@"Could not complete scan request -- request queued. Bluetooth state: %d (%s)",
-              (int)self.centralManager.state, [self centralManagerStateToString:self.centralManager.state]);
-        self.waitingToScan = YES;
-        self.status = kIdle;
-    }
-}
-
-
-- (void)continueScanForHermesController {
-    NSNumber *foundControllerCount = [NSNumber numberWithInteger:self.discoveredHermesControllers.count];
-    [NSTimer scheduledTimerWithTimeInterval:(float)scanTimeoutSecond
-                                     target:self
-                                   selector:@selector(continueScanTimer:)
-                                   userInfo:foundControllerCount
-                                    repeats:NO];
-}
-
-
-- (void)continueScanTimer:(NSTimer *)timer {
-    int previousControllerCount = [((NSNumber *)[timer userInfo]) intValue];
-    if (self.status == kScanning && self.discoveredHermesControllers.count == previousControllerCount) {
-        NSLog(@"Scan timed out - sending endScanForPeripherals message to Bluetooth interface");
-        [self.BLEInterface endScanForPeripherals];
-        self.status = kTimeout;
-    }
-}
- */
 
 
 
@@ -150,7 +108,7 @@ static int scanTimeoutSecond = 2;
 - (BOOL)beginRecording {
     if (self.status == kConnected) {
         [self.packet configureRecordingPacketWithStatus:RecordingBegin];
-        [self.packet printPacket];
+        [self.packet printPacket:YES];
         [self.connectedPeripheral writeValue:[self.packet dataFormat]
                            forCharacteristic:self.txCharacteristic
                                         type:CBCharacteristicWriteWithoutResponse];
@@ -164,7 +122,7 @@ static int scanTimeoutSecond = 2;
 - (BOOL)endRecording {
     if (self.status == kConnected) {
         [self.packet configureRecordingPacketWithStatus:RecordingEnd];
-        [self.packet printPacket];
+        [self.packet printPacket:YES];
         [self.connectedPeripheral writeValue:[self.packet dataFormat]
                            forCharacteristic:self.txCharacteristic
                                         type:CBCharacteristicWriteWithoutResponse];
@@ -178,6 +136,7 @@ static int scanTimeoutSecond = 2;
 - (BOOL)beginMovementLeft {
     if (self.status == kConnected) {
         [self.packet configureMovementPacketWithDirection:MovementLeft];
+        [self.packet printPacket:YES]; //***
         [self.connectedPeripheral writeValue:[self.packet dataFormat]
                            forCharacteristic:self.txCharacteristic
                                         type:CBCharacteristicWriteWithoutResponse];
@@ -191,6 +150,39 @@ static int scanTimeoutSecond = 2;
 - (BOOL)beginMovementRight {
     if (self.status == kConnected) {
         [self.packet configureMovementPacketWithDirection:MovementRight];
+        [self.packet printPacket:YES]; //***
+        [self.connectedPeripheral writeValue:[self.packet dataFormat]
+                           forCharacteristic:self.txCharacteristic
+                                        type:CBCharacteristicWriteWithoutResponse];
+        return YES;
+    } else {
+        return NO;
+    }
+}
+
+
+- (BOOL)beginMovementLeftWithMaxSpeedPercent:(int)speedPercent dampingPercent:(int)dampingPercent{
+    if (self.status == kConnected) {
+        [self.packet configureMovementPacketWithDirection:MovementLeft
+                                          maxSpeedPercent:speedPercent
+                                           dampingPercent:dampingPercent];
+        [self.packet printPacket:YES];
+        [self.connectedPeripheral writeValue:[self.packet dataFormat]
+                           forCharacteristic:self.txCharacteristic
+                                        type:CBCharacteristicWriteWithoutResponse];
+        return YES;
+    } else {
+        return NO;
+    }
+}
+
+
+- (BOOL)beginMovementRightWithMaxSpeedPercent:(int)speedPercent damping:(int)dampingPercent {
+    if (self.status == kConnected) {
+        [self.packet configureMovementPacketWithDirection:MovementRight
+                                          maxSpeedPercent:speedPercent
+                                           dampingPercent:dampingPercent];
+        [self.packet printPacket:YES];
         [self.connectedPeripheral writeValue:[self.packet dataFormat]
                            forCharacteristic:self.txCharacteristic
                                         type:CBCharacteristicWriteWithoutResponse];
@@ -204,6 +196,35 @@ static int scanTimeoutSecond = 2;
 - (BOOL)endMovement {
     if (self.status == kConnected) {
         [self.packet configureMovementPacketWithDirection:MovementStop];
+        BOOL sendEndPacket = YES;
+        
+        if (sendEndPacket) {
+            [self.packet printPacket:YES];
+            [self.connectedPeripheral writeValue:[self.packet dataFormat]
+                               forCharacteristic:self.txCharacteristic
+                                            type:CBCharacteristicWriteWithoutResponse];
+        } else {
+            NSLog(@"Command Packet: NO PACKET SENT\n\n");
+        }
+        return YES;
+    } else {
+        return NO;
+    }
+}
+
+
+- (BOOL)beginTimeLapseWithDurationSeconds:(NSInteger)durationSeconds
+                       startPositionSteps:(NSInteger)startPositionSteps
+                         endPositionSteps:(NSInteger)endPositionSteps
+                           dampingPercent:(NSInteger)dampingPercent
+                                     loop:(BOOL)loop {
+    if (self.status == kConnected) {
+        [self.packet configureTimeLapseModePacketWithDurationSeconds:durationSeconds
+                                                  startPositionSteps:startPositionSteps
+                                                    endPositionSteps:endPositionSteps
+                                                      dampingPercent:dampingPercent
+                                                                loop:loop];
+        [self.packet printPacket:YES];
         [self.connectedPeripheral writeValue:[self.packet dataFormat]
                            forCharacteristic:self.txCharacteristic
                                         type:CBCharacteristicWriteWithoutResponse];
@@ -214,32 +235,13 @@ static int scanTimeoutSecond = 2;
 }
 
 
--(BOOL)beginTimeLapseWithDuration:(NSInteger)durationSeconds
-                    startPosition:(NSInteger)start
-                      endPosition:(NSInteger)end
-                          damping:(NSInteger)damping
-                             loop:(BOOL)loop {
-    if (self.status == kConnected) {
-        [self.packet configureTimeLapseModePacketWithDurationSeconds:durationSeconds
-                                                  startPositionSteps:start
-                                                    endPositionSteps:end
-                                                      dampingPercent:damping loop:loop];
-        [self.connectedPeripheral writeValue:[self.packet dataFormat]
-                           forCharacteristic:self.txCharacteristic
-                                        type:CBCharacteristicWriteWithResponse];
-        return YES;
-    } else {
-        return NO;
-    }
-}
-
-
 - (BOOL)endTimeLapse {
     if (self.status == kConnected) {
         [self.packet configureTimeLapseModeEndRecordingPacket];
+        [self.packet printPacket:YES];
         [self.connectedPeripheral writeValue:[self.packet dataFormat]
                            forCharacteristic:self.txCharacteristic
-                                        type:CBCharacteristicWriteWithResponse];
+                                        type:CBCharacteristicWriteWithoutResponse];
         return YES;
     } else {
         return NO;
@@ -247,18 +249,21 @@ static int scanTimeoutSecond = 2;
 }
 
 
--(BOOL)beginStopMotionWithInterval:(NSInteger)intervalSeconds
-                     startPosition:(NSInteger)start
-                       endPosition:(NSInteger)end
-                           damping:(NSInteger)damping {
+- (BOOL)beginStopMotionWithDurationSeconds:(NSInteger)durationSeconds
+                        startPositionSteps:(NSInteger)startPositionSteps
+                          endPositionSteps:(NSInteger)endPositionSteps
+                            dampingPercent:(NSInteger)dampingPercent
+                    captureIntervalSeconds:(NSInteger)captureIntervalSeconds {
     if (self.status == kConnected) {
-        [self.packet configureStopMotionModePacketWithCaptureIntervalSeconds:intervalSeconds
-                                                          startPositionSteps:start
-                                                            endPositionSteps:end
-                                                              dampingPercent:damping];
+        [self.packet configureStopMotionModePacketWithDurationSeconds:durationSeconds
+                                                   startPositionSteps:startPositionSteps
+                                                     endPositionSteps:endPositionSteps
+                                                       dampingPercent:dampingPercent
+                                               captureIntervalSeconds:captureIntervalSeconds];
+        [self.packet printPacket:YES];
         [self.connectedPeripheral writeValue:[self.packet dataFormat]
                            forCharacteristic:self.txCharacteristic
-                                        type:CBCharacteristicWriteWithResponse];
+                                        type:CBCharacteristicWriteWithoutResponse];
         return YES;
     } else {
         return NO;
@@ -271,7 +276,7 @@ static int scanTimeoutSecond = 2;
         [self.packet configureStopMotionModeEndRecordingPacket];
         [self.connectedPeripheral writeValue:[self.packet dataFormat]
                            forCharacteristic:self.txCharacteristic
-                                        type:CBCharacteristicWriteWithResponse];
+                                        type:CBCharacteristicWriteWithoutResponse];
         return YES;
     } else {
         return NO;
@@ -292,36 +297,38 @@ static int scanTimeoutSecond = 2;
     
     switch (central.state) {
         case CBCentralManagerStatePoweredOff:
-            NSLog(@"CoreBluetooth BLE hardware is powered off");
+            NSLog(@"CoreBluetooth BLE hardware is powered off\n\n");
             self.status = kBluetoothPoweredOff;
             break;
         case CBCentralManagerStatePoweredOn:
-            NSLog(@"CoreBluetooth BLE hardware is powered on and ready");
+            NSLog(@"CoreBluetooth BLE hardware is powered on and ready\n\n");
+            NSLog(@"***** Connection Stage *****");
             self.readyForCommand = YES;
             self.status = kIdle;
             
             if ([self isWaitingToScan]) {
+                NSLog(@"Queued scan detected. Initiating scan...");
                 [self beginScan];
             }
             break;
         case CBCentralManagerStateResetting:
-            NSLog(@"CoreBluetooth BLE hardware is resetting");
+            NSLog(@"CoreBluetooth BLE hardware is resetting\n\n");
             self.status = kBluetoothPoweredOff;
             break;
         case CBCentralManagerStateUnauthorized:
-            NSLog(@"CoreBluetooth BLE state is unauthorized");
+            NSLog(@"CoreBluetooth BLE state is unauthorized\n\n");
             self.status = kError;
             break;
         case CBCentralManagerStateUnknown:
-            NSLog(@"CoreBluetooth BLE state is unknown");
+            NSLog(@"CoreBluetooth BLE state is unknown\n\n");
             self.status = kError;
             break;
         case CBCentralManagerStateUnsupported:
-            NSLog(@"CoreBluetooth BLE hardware is unsupported on this platform");
+            NSLog(@"CoreBluetooth BLE hardware is unsupported on this platform\n\n");
             self.status = kUnsupported;
             break;
         default:
-            NSLog(@"Error: Could not determine CoreBluetooth BLE state");
+            NSLog(@"Error: Could not determine CoreBluetooth BLE state\n\n");
             self.status = kError;
             break;
     }
@@ -331,7 +338,7 @@ static int scanTimeoutSecond = 2;
 // Automatically connects to discovered peripherals
 - (void)centralManager:(CBCentralManager *)central didDiscoverPeripheral:(CBPeripheral *)peripheral
      advertisementData:(NSDictionary *)advertisementData RSSI:(NSNumber *)RSSI {
-    NSLog(@"Found %@ peripheral with UUID: %@\n", peripheral.name, [[peripheral identifier] UUIDString]);
+    NSLog(@"Found %@ peripheral with device UUID: %@", peripheral.name, [[peripheral identifier] UUIDString]);
     
     self.discoveredPeripheral = peripheral;
     self.discoveredPeripheral.delegate = self;
@@ -340,7 +347,7 @@ static int scanTimeoutSecond = 2;
 
 
 - (void)centralManager:(CBCentralManager *)central didConnectPeripheral:(CBPeripheral *)peripheral {
-    NSLog(@"Connected to %@ peripheral with UUID : %@", peripheral.name, [[peripheral identifier] UUIDString]);
+    NSLog(@"Connected to %@ peripheral", peripheral.name);
     self.connectedPeripheral = peripheral;
     self.connectedPeripheral.delegate = self;
     self.status = kConnected;
@@ -361,12 +368,14 @@ static int scanTimeoutSecond = 2;
  */
 - (void)centralManager:(CBCentralManager *)central didDisconnectPeripheral:(CBPeripheral *)peripheral error:(NSError *)error {
     if (error) {
-        NSLog(@"Error: %@. Unexpectedly disconnected from peripheral with UUID: %@\n\n", [error localizedDescription], [[peripheral identifier] UUIDString]);
+        NSLog(@"Error: %@ disconnected. %@\n\n", peripheral.name, [error localizedDescription]);
     } else {
-        NSLog(@"Successfully disconnected from peripheral with UUID : %@\n\n", [[peripheral identifier] UUIDString]);
+        NSLog(@"Successfully disconnected from peripheral with UUID: %@\n\n", [[peripheral identifier] UUIDString]);
     }
     
     self.connectedPeripheral = nil;
+    self.rxCharacteristic = nil;
+    self.txCharacteristic = nil;
     self.status = kDisconnected;
 }
 
@@ -388,8 +397,6 @@ static int scanTimeoutSecond = 2;
 
 - (void)peripheral:(CBPeripheral *)peripheral didDiscoverCharacteristicsForService:(CBService *)service error:(NSError *)error {
     if (!error) {
-        NSLog(@"Characteristics of service with UUID : %@ found\n\n", [service.UUID.data description]);
-        
         // Deal with errors (if any)
         if (error) {
             NSLog(@"Error discovering characteristics: %@", [error localizedDescription]);
@@ -405,10 +412,17 @@ static int scanTimeoutSecond = 2;
                 self.rxCharacteristic = characteristic;
                 [peripheral setNotifyValue:YES forCharacteristic:characteristic];
                 NSLog(@"Receive characteristic found");
+            } else {
+                NSLog(@"Unknown characteristic found with UUID: %@", characteristic.UUID);
             }
         }
     } else {
         NSLog(@"Characteristic discorvery unsuccessful!\n\n");
+    }
+    
+    if (self.txCharacteristic && self.rxCharacteristic) {
+        NSLog(@"Connection Setup!\n\n\n");
+        NSLog(@"***** Transfer Stage *****");
     }
 }
 
@@ -433,13 +447,17 @@ static int scanTimeoutSecond = 2;
 
 - (void)peripheral:(CBPeripheral *)peripheral didDiscoverServices:(NSError *)error {
     if (!error) {
-        printf("Services of peripheral with UUID : %s found\r\n",[[[peripheral identifier] UUIDString] UTF8String]);
+        NSLog(@"Services of %@ peripheral found",peripheral.name);
         for (CBService *service in peripheral.services) {
-            NSLog(@"Discovered service: %@", service.UUID);
+            if ([service.UUID isEqual:[CBUUID UUIDWithString:kUARTServiceUUIDString]]) {
+                NSLog(@"Discovered UART service with UUID: %@", service.UUID);
+            } else {
+                NSLog(@"Discovered unknown service with UUID: %@", service.UUID);
+            }
             [peripheral discoverCharacteristics:nil forService:service];
         }
     } else {
-        printf("Service discovery was unsuccessfull !\r\n");
+        NSLog(@"Service discovery was unsuccessfull!\r\n");
     }
 }
 
@@ -480,10 +498,10 @@ static int scanTimeoutSecond = 2;
 
 - (void)peripheral:(CBPeripheral *)peripheral didUpdateValueForCharacteristic:(CBCharacteristic *)characteristic error:(NSError *)error {
     if (!error) {
-        printf("Services of peripheral with UUID : %s found\r\n",[[[peripheral identifier] UUIDString] UTF8String]);
+        NSLog(@"Services of peripheral with UUID: %s found",[[[peripheral identifier] UUIDString] UTF8String]);
     }
     else {
-        printf("updateValueForCharacteristic failed !");
+        NSLog(@"updateValueForCharacteristic failed!");
     }
     
 }
@@ -543,7 +561,7 @@ static int scanTimeoutSecond = 2;
 }
 
 - (void)beginScan {
-    NSLog(@"Scanning for Bluetooth peripherals with UUID: %@\n", kUARTServiceUUIDString);
+    NSLog(@"Scanning for Bluetooth peripherals with UART service UUID: %@", kUARTServiceUUIDString);
     
     // Begin scan timeout timer
     [NSTimer scheduledTimerWithTimeInterval:scanTimeoutSecond
@@ -584,7 +602,7 @@ static int scanTimeoutSecond = 2;
 
 - (void)connectToHermesController:(CBPeripheral *)peripheral {
     if ([self isReadyForCommand]) {
-        NSLog(@"Attempting to connect to %@ peripheral\n", peripheral.name);
+        NSLog(@"Connecting to %@ peripheral...", peripheral.name);
         
         self.status = kConnecting;
         [self.centralManager connectPeripheral:peripheral options:nil];

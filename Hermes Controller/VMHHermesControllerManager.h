@@ -39,16 +39,19 @@ typedef NS_ENUM(NSUInteger, ControllerStatus) {
 - (BOOL)endRecording;
 - (BOOL)beginMovementRight;
 - (BOOL)beginMovementLeft;
+- (BOOL)beginMovementRightWithMaxSpeed:(int)speed damping:(int)damping;
+- (BOOL)beginMovementLeftWithMaxSpeed:(int)speed damping:(int)damping;
 - (BOOL)endMovement;
-- (BOOL)beginTimeLapseWithDuration:(NSInteger)durationSeconds
-                     startPosition:(NSInteger)start
-                       endPosition:(NSInteger)end
-                           damping:(NSInteger)damping
-                              loop:(BOOL)loop;
+- (BOOL)beginTimeLapseWithDurationSeconds:(NSInteger)durationSeconds
+                       startPositionSteps:(NSInteger)startPositionSteps
+                         endPositionSteps:(NSInteger)endPositionSteps
+                           dampingPercent:(NSInteger)dampingPercent
+                                     loop:(BOOL)loop;
 - (BOOL)endTimeLapse;
-- (BOOL)beginStopMotionWithInterval:(NSInteger)intervalSeconds
-                      startPosition:(NSInteger)start
-                        endPosition:(NSInteger)end
-                            damping:(NSInteger)damping;
+- (BOOL)beginStopMotionWithDurationSeconds:(NSInteger)durationSeconds
+                        startPositionSteps:(NSInteger)startPositionSteps
+                          endPositionSteps:(NSInteger)endPositionSteps
+                            dampingPercent:(NSInteger)dampingPercent
+                    captureIntervalSeconds:(NSInteger)captureIntervalSeconds;
 - (BOOL)endStopMotion;
 @end

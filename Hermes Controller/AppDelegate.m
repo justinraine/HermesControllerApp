@@ -21,6 +21,7 @@ NS_ENUM(NSInteger, alertTag) {
 
 @property (nonatomic, strong) MBProgressHUD *HUD;
 @property (nonatomic, getter=isConnectionViewDisplayed) BOOL connectionViewDisplayed;
+@property (nonatomic, getter=isDisplayingHUD) BOOL displayingHUD;
 
 @end
 
@@ -69,18 +70,24 @@ NS_ENUM(NSInteger, alertTag) {
 #pragma mark - Public Methods
 
 - (void)showBasicHUD {
+    NSLog(@"showBasicHUD");
     [self HUDSetup];
 }
 
 - (void)showCaptureHUD {
+    NSLog(@"showCaptureHUD");
     [self HUDSetup];
     self.HUD.labelText = @"Capturing...";
     self.HUD.mode = MBProgressHUDModeAnnularDeterminate;
 }
 
 - (void)hideHUD {
-    [[UIApplication sharedApplication] endIgnoringInteractionEvents];
-    [self.HUD hide:YES];
+    if ([self isDisplayingHUD]) {
+        NSLog(@"hideHUD isDisplayingHUD");
+        self.displayingHUD = NO;
+        [[UIApplication sharedApplication] endIgnoringInteractionEvents];
+        [self.HUD hide:YES];
+    }
 }
 
 - (void)updateCaptureProgress:(int)progress {
@@ -92,12 +99,14 @@ NS_ENUM(NSInteger, alertTag) {
 #pragma mark - Private Methods
 
 - (void)HUDSetup {
+    NSLog(@"HUDSetup");
     // Hide any currently displaying HUD
-    [self.HUD hide:YES];
+    //[self.HUD hide:YES]; // necessary?
     
     // Display HUD
     UIWindow *windowForHud = [[UIApplication sharedApplication] delegate].window;
     self.HUD = [MBProgressHUD showHUDAddedTo:windowForHud animated:YES];
+    self.displayingHUD = YES;
     
     // Configure basic HUD
     self.HUD.minShowTime = 0.1;
@@ -131,13 +140,13 @@ NS_ENUM(NSInteger, alertTag) {
 }
 
 
-- (BOOL)isShowingHUD {
-    return self.HUD.alpha > 0.0f;
+- (BOOL)isConnectionViewDisplayed {
+    return _connectionViewDisplayed;
 }
 
 
-- (BOOL)isConnectionViewDisplayed {
-    return _connectionViewDisplayed;
+- (BOOL)isDisplayingHUD {
+    return _displayingHUD;
 }
 
 
@@ -193,9 +202,7 @@ NS_ENUM(NSInteger, alertTag) {
             }
         });
     } else if (updatedStatus == kDisconnected) {
-        if ([self isShowingHUD]) {
-            [self hideHUD];
-        }
+        [self hideHUD];
         [self displayUnsuccessfulAlertWithTitle:@"Bluetooth Disconnection"
                                         message:@"Hermes has been disconnected"];
     } else if (updatedStatus == kTimeout) {
@@ -205,16 +212,11 @@ NS_ENUM(NSInteger, alertTag) {
     } else if (updatedStatus == kIdle) {
         // do nothing?
     } else if (updatedStatus == kBluetoothPoweredOff) {
-        if ([self isShowingHUD]) {
-            [self hideHUD];
-        }
+        [self hideHUD];
         [self displayUnsuccessfulAlertWithTitle:@"Bluetooth Disabled"
                                         message:@"Please enable Bluetooth and connect to a Hermes Controller"];
     } else if (updatedStatus == kUnsupported) {
-        if ([self isShowingHUD]) {
-            [self hideHUD];
-        }
-        
+        [self hideHUD];
         UIAlertView *alert = [[UIAlertView alloc]
                               initWithTitle:@"Bluetooth Not Supported"
                               message:@"This device does not support Bluetooth LE"
@@ -224,10 +226,7 @@ NS_ENUM(NSInteger, alertTag) {
         alert.tag = kUnsupportedTag;
         [alert show];
     } else if (updatedStatus == kError) {
-        if ([self isShowingHUD]) {
-            [self hideHUD];
-        }
-        
+        [self hideHUD];
         [self displayUnsuccessfulAlertWithTitle:@"Bluetooth Error"
                                         message:@"An unknown error occurred"];
     }
@@ -244,4 +243,5 @@ NS_ENUM(NSInteger, alertTag) {
     alert.tag = kConnectionUnsuccessfulTag;
     [alert show];
 }
+
 @end

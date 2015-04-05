@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		87B1833B1AB917DE00BB2515 /* StopMotionModeTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 87B1833A1AB917DE00BB2515 /* StopMotionModeTableViewController.m */; };
 		87B183401AB91DCE00BB2515 /* HelpViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 87B1833F1AB91DCE00BB2515 /* HelpViewController.m */; };
+		D0048C6F1AD06CA4001193D7 /* HelpPage.html in Resources */ = {isa = PBXBuildFile; fileRef = D0048C6E1AD06CA4001193D7 /* HelpPage.html */; };
 		D03958661AB4F6E0001F6A4D /* TimeLapseModeTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D03958651AB4F6E0001F6A4D /* TimeLapseModeTableViewController.m */; };
 		D03958691AB4F9B3001F6A4D /* LabeledPickerView.m in Sources */ = {isa = PBXBuildFile; fileRef = D03958681AB4F9B3001F6A4D /* LabeledPickerView.m */; };
 		D04067C01AC084140088AA7B /* VMHPacket.m in Sources */ = {isa = PBXBuildFile; fileRef = D04067BF1AC084140088AA7B /* VMHPacket.m */; };
@@ -43,6 +44,7 @@
 		87B1833A1AB917DE00BB2515 /* StopMotionModeTableViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = StopMotionModeTableViewController.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		87B1833E1AB91DCE00BB2515 /* HelpViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HelpViewController.h; sourceTree = "<group>"; };
 		87B1833F1AB91DCE00BB2515 /* HelpViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HelpViewController.m; sourceTree = "<group>"; };
+		D0048C6E1AD06CA4001193D7 /* HelpPage.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = HelpPage.html; sourceTree = "<group>"; };
 		D03958641AB4F6E0001F6A4D /* TimeLapseModeTableViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TimeLapseModeTableViewController.h; sourceTree = "<group>"; };
 		D03958651AB4F6E0001F6A4D /* TimeLapseModeTableViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TimeLapseModeTableViewController.m; sourceTree = "<group>"; };
 		D03958671AB4F9B3001F6A4D /* LabeledPickerView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LabeledPickerView.h; sourceTree = "<group>"; };
@@ -142,6 +144,7 @@
 				D0421B791AA96CA50069C601 /* main.m */,
 				D05880BE1AB2902E006D7760 /* 37x-Checkmark.png */,
 				D05880BF1AB2902E006D7760 /* 37x-Checkmark@2x.png */,
+				D0048C6E1AD06CA4001193D7 /* HelpPage.html */,
 			);
 			name = "Supporting Files";
 			sourceTree = "<group>";
@@ -244,6 +247,7 @@
 				TargetAttributes = {
 					D0421B731AA96CA50069C601 = {
 						CreatedOnToolsVersion = 6.1.1;
+						DevelopmentTeam = 88V36FEC2G;
 					};
 					D0421B8C1AA96CA50069C601 = {
 						CreatedOnToolsVersion = 6.1.1;
@@ -277,6 +281,7 @@
 			files = (
 				D05880C01AB2902E006D7760 /* 37x-Checkmark.png in Resources */,
 				D0421B831AA96CA50069C601 /* Main.storyboard in Resources */,
+				D0048C6F1AD06CA4001193D7 /* HelpPage.html in Resources */,
 				D0421B881AA96CA50069C601 /* LaunchScreen.xib in Resources */,
 				D05880C11AB2902E006D7760 /* 37x-Checkmark@2x.png in Resources */,
 				D0421B851AA96CA50069C601 /* Images.xcassets in Resources */,
@@ -431,9 +436,12 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				INFOPLIST_FILE = "Hermes Controller/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_NAME = HermesControllerApp;
+				PROVISIONING_PROFILE = "";
 			};
 			name = Debug;
 		};
@@ -441,9 +449,12 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				INFOPLIST_FILE = "Hermes Controller/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_NAME = HermesControllerApp;
+				PROVISIONING_PROFILE = "";
 			};
 			name = Release;
 		};

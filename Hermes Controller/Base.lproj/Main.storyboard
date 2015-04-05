@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="6751" systemVersion="14D127a" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="nbH-So-JRA">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="6751" systemVersion="14D130a" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="nbH-So-JRA">
     <dependencies>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="6736"/>
         <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
@@ -176,6 +176,7 @@
         <!--Help-->
         <scene sceneID="DaD-Lg-UwZ">
             <objects>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="neF-wN-UOm" userLabel="First Responder" sceneMemberID="firstResponder"/>
                 <viewController storyboardIdentifier="HelpView" id="yMa-i7-tAU" customClass="HelpViewController" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="mAJ-U9-rvs"/>
@@ -184,11 +185,25 @@
                     <view key="view" contentMode="scaleToFill" id="56Y-c8-C08">
                         <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <webView contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Gih-r5-jYb">
+                                <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                            </webView>
+                        </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstItem="Gih-r5-jYb" firstAttribute="leading" secondItem="56Y-c8-C08" secondAttribute="leadingMargin" constant="-16" id="3l3-Ao-aOu"/>
+                            <constraint firstItem="Gih-r5-jYb" firstAttribute="bottom" secondItem="56Y-c8-C08" secondAttribute="bottomMargin" id="4zm-ot-nZB"/>
+                            <constraint firstItem="Gih-r5-jYb" firstAttribute="top" secondItem="56Y-c8-C08" secondAttribute="topMargin" id="ocf-fD-36Q"/>
+                            <constraint firstAttribute="trailingMargin" secondItem="Gih-r5-jYb" secondAttribute="trailing" constant="-16" id="xKY-JB-6jZ"/>
+                        </constraints>
                     </view>
                     <navigationItem key="navigationItem" title="Help" id="P9I-ZF-230"/>
+                    <connections>
+                        <outlet property="webView" destination="Gih-r5-jYb" id="cVn-YY-eV2"/>
+                    </connections>
                 </viewController>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="neF-wN-UOm" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="2177" y="-541"/>
         </scene>
@@ -359,6 +374,11 @@
                         </connections>
                     </tableView>
                     <navigationItem key="navigationItem" title="Time Lapse" id="qLQ-on-APY">
+                        <barButtonItem key="leftBarButtonItem" title="End" id="lRl-JZ-tG2">
+                            <connections>
+                                <action selector="endButton:" destination="cHG-0F-Glh" id="L8F-b2-dBt"/>
+                            </connections>
+                        </barButtonItem>
                         <barButtonItem key="rightBarButtonItem" enabled="NO" title="Start" id="8HG-CE-beT">
                             <connections>
                                 <action selector="startButton:" destination="cHG-0F-Glh" id="8Qs-Uq-xIl"/>

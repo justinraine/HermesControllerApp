@@ -28,6 +28,8 @@
 
 @implementation LiveModeViewController
 
+int kMaxRPM1 = 230;
+
 #pragma mark - Lifecycle Methods
 
 - (void)viewDidLoad {
@@ -81,13 +83,17 @@
 
 - (IBAction)startLeftMovement:(id)sender {
     NSLog(@"Left button pressed -- Send command to Arduino to begin moving left");
-    [[VMHHermesControllerManager sharedInstance] beginMovementLeft];
+    //[[VMHHermesControllerManager sharedInstance] beginMovementLeft];
+    [[VMHHermesControllerManager sharedInstance] beginMovementLeftWithMaxSpeed:roundf(self.maxSpeedSlider.value*kMaxRPM1)
+                                                                       damping:roundf(self.dampingSlider.value*100)];
 }
 
 
 - (IBAction)startRightMovement:(id)sender {
     NSLog(@"Right button pressed -- Send command to Arduino to begin moving right");
-    [[VMHHermesControllerManager sharedInstance] beginMovementRight];
+    //[[VMHHermesControllerManager sharedInstance] beginMovementRight];
+    [[VMHHermesControllerManager sharedInstance] beginMovementRightWithMaxSpeed:roundf(self.maxSpeedSlider.value*kMaxRPM1)
+                                                                        damping:roundf(self.dampingSlider.value*100)];
 }
 
 

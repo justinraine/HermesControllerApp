@@ -25,23 +25,27 @@ extern const int kPacketByteLength;
 @interface VMHPacket : NSObject
 
 // Output Methods
-- (void)printPacket;
-- (void)printPacketPretty;
+- (void)printPacket:(BOOL)pretty;
 - (NSData *)dataFormat;
 
 // Packet Configuration Methods
 - (void)configureRecordingPacketWithStatus:(RecordStatus)status;
 - (void)configureMovementPacketWithDirection:(MovementDirection)direction;
+- (void)configureMovementPacketWithDirection:(MovementDirection)direction
+                             maxSpeedPercent:(int)speedPercent
+                              dampingPercent:(int)dampingPercent;
+- (void)configureSetPositionPacket;
 - (BOOL)configureTimeLapseModePacketWithDurationSeconds:(NSInteger)durationSeconds
                                      startPositionSteps:(NSInteger)startPositionSteps
                                        endPositionSteps:(NSInteger)endPositionSteps
                                          dampingPercent:(NSInteger)dampingPercent
                                                    loop:(BOOL)loop;
 - (void)configureTimeLapseModeEndRecordingPacket;
-- (BOOL)configureStopMotionModePacketWithCaptureIntervalSeconds:(NSInteger)captureIntervalSeconds
-                                             startPositionSteps:(NSInteger)startPositionSteps
-                                               endPositionSteps:(NSInteger)endPositionSteps
-                                                 dampingPercent:(NSInteger)dampingPercent;
+- (BOOL)configureStopMotionModePacketWithDurationSeconds:(NSInteger)totalDurationSeconds
+                                      startPositionSteps:(NSInteger)startPositionSteps
+                                        endPositionSteps:(NSInteger)endPositionSteps
+                                          dampingPercent:(NSInteger)dampingPercent
+                                  captureIntervalSeconds:(NSInteger)captureIntervalSeconds;
 - (void)configureStopMotionModeEndRecordingPacket;
 
 @end

@@ -57,10 +57,11 @@ static const int kOptionsSection = 3;
     NSInteger captureTotalSeconds = ((captureHours * 60) + captureMinutes) * 60;
     NSInteger playbackTotalSeconds = [self.playbackDurationPicker selectedRowInComponent:0] % 60;
     
-    [[VMHHermesControllerManager sharedInstance] beginStopMotionWithInterval:captureTotalSeconds/playbackTotalSeconds
-                                                               startPosition:[self.startPositionSteps integerValue]
-                                                                 endPosition:[self.endPositionSteps integerValue]
-                                                                     damping:(int)self.dampingSlider.value*100];
+    [[VMHHermesControllerManager sharedInstance] beginStopMotionWithDurationSeconds:captureTotalSeconds
+                                                                 startPositionSteps:[self.startPositionSteps integerValue]
+                                                                   endPositionSteps:[self.endPositionSteps integerValue]
+                                                                     dampingPercent:(int)self.dampingSlider.value*100
+                                                             captureIntervalSeconds:captureTotalSeconds/playbackTotalSeconds];
 }
 
 
