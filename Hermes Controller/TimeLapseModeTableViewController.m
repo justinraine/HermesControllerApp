@@ -8,6 +8,7 @@
 
 #import "TimeLapseModeTableViewController.h"
 #import "PositionViewController.h"
+#import "InProgressViewController.h"
 #import "LabeledPickerView.h"
 #import "VMHHermesControllerManager.h"
 #import "VMHPacket.h"
@@ -51,20 +52,23 @@ static const int kOptionsSection = 2;
 - (IBAction)startButton:(id)sender {
     NSLog(@"Start button pressed -- Send command to Arduino to begin time lapse");
     
+    // Send command to Hermes Controller
     NSInteger selectedHour = [self.captureDurationPicker selectedRowInComponent:0];
     NSInteger selectedMinute = [self.captureDurationPicker selectedRowInComponent:1] % 60;
     NSInteger durationSeconds = ((selectedHour * 60) + selectedMinute) * 60;
-    
     [[VMHHermesControllerManager sharedInstance] beginTimeLapseWithDurationSeconds:durationSeconds
                                                                 startPositionSteps:[self.startPositionSteps integerValue]
                                                                   endPositionSteps:[self.endPositionSteps integerValue]
                                                                     dampingPercent:(int)self.dampingSlider.value*100
                                                                               loop:self.repeatSwitch.on];
+    
+    // Segue to InProgress view
+    UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"Main" bundle:nil];
+    InProgressViewController *inProgressViewController = [storyboard instantiateViewControllerWithIdentifier:@"InProgressView"];
+    inProgressViewController.timeLapseMode = YES;
+    [inProgressViewController setModalPresentationStyle:UIModalPresentationFullScreen];
 }
 
-- (IBAction)endButton:(id)sender {
-    [[VMHHermesControllerManager sharedInstance] endTimeLapse];
-}
 
 - (IBAction)dampingSliderDidChange:(id)sender {
     self.dampingLabel.text = [NSString stringWithFormat:@"%.f%%", roundf(self.dampingSlider.value*100)];

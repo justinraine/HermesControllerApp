@@ -14,23 +14,13 @@ typedef NS_ENUM(NSInteger, VMHModes) {
     VMHModeStopMotion        = 0x02,
 };
 
-typedef NS_ENUM(NSInteger, VMHCommands) {
-    VMHCommandBeginRecording = 0x00,
-    VMHCommandEndRecording   = 0x01,
-    VMHCommandMoveLeft       = 0x02,
-    VMHCommandMoveRight      = 0x03,
-    VMHCommandMoveStop       = 0x04,
-    VMHCommandSetPosition    = 0x05,
-};
-
-typedef NS_ENUM(NSInteger, VMHPacketPositions) {
-    VMHPacketModeIndex       = 0,
-    VMHPacketCommandIndex    = 1,
-    VMHPacketParam1Index     = 2, // 2 bytes long
-    VMHPacketParam2Index     = 4, // 2 bytes long
-    VMHPacketParam3Index     = 6, // 2 bytes long
-    VMHPacketParam4Index     = 8,
-    VMHPacketParam5Index     = 9,
+typedef NS_ENUM(NSInteger, VMHTxCommands) {
+    VMHTxCommandBeginRecording = 0x00,
+    VMHTxCommandEndRecording   = 0x01,
+    VMHTxCommandMoveLeft       = 0x02,
+    VMHTxCommandMoveRight      = 0x03,
+    VMHTxCommandMoveStop       = 0x04,
+    VMHTxCommandSetPosition    = 0x05,
 };
 
 const int kPacketByteLength = 12;
@@ -191,9 +181,9 @@ const int kDefaultDampingPercent = 50;
     // Configure packet
     [self.data insertObject:[NSNumber numberWithInt:VMHModeGeneral] atIndex:VMHPacketModeIndex];
     if (status == RecordingBegin) {
-        [self.data insertObject:[NSNumber numberWithInt:VMHCommandBeginRecording] atIndex:VMHPacketCommandIndex];
+        [self.data insertObject:[NSNumber numberWithInt:VMHTxCommandBeginRecording] atIndex:VMHPacketCommandIndex];
     } else {
-        [self.data insertObject:[NSNumber numberWithInt:VMHCommandEndRecording] atIndex:VMHPacketCommandIndex];
+        [self.data insertObject:[NSNumber numberWithInt:VMHTxCommandEndRecording] atIndex:VMHPacketCommandIndex];
     }
     [self padRemainderOfPacket];
 }
@@ -207,8 +197,8 @@ const int kDefaultDampingPercent = 50;
 
 
 - (void)configureMovementPacketWithDirection:(MovementDirection)direction
-                             maxSpeedPercent:(int)speedPercent
-                              dampingPercent:(int)dampingPercent {
+                             maxSpeedPercent:(NSInteger)speedPercent
+                              dampingPercent:(NSInteger)dampingPercent {
     if (speedPercent < 0 || speedPercent > 100) {
         NSLog(@"Error: maxSpeedPercent argument must be between 0 and 100");
         return;
@@ -224,17 +214,17 @@ const int kDefaultDampingPercent = 50;
     [self.data insertObject:[NSNumber numberWithInt:VMHModeGeneral] atIndex:VMHPacketModeIndex];
     if (direction == MovementLeft || direction == MovementRight) {
         if (direction == MovementLeft) {
-            [self.data insertObject:[NSNumber numberWithInt:VMHCommandMoveLeft] atIndex:VMHPacketCommandIndex];
+            [self.data insertObject:[NSNumber numberWithInt:VMHTxCommandMoveLeft] atIndex:VMHPacketCommandIndex];
         } else {
-            [self.data insertObject:[NSNumber numberWithInt:VMHCommandMoveRight] atIndex:VMHPacketCommandIndex];
+            [self.data insertObject:[NSNumber numberWithInt:VMHTxCommandMoveRight] atIndex:VMHPacketCommandIndex];
         }
         
         [self.data insertObject:[NSNumber numberWithInt:0] atIndex:VMHPacketParam1Index];
-        [self.data insertObject:[NSNumber numberWithInt:speedPercent] atIndex:VMHPacketParam1Index+1];
+        [self.data insertObject:[NSNumber numberWithInteger:speedPercent] atIndex:VMHPacketParam1Index+1];
         [self.data insertObject:[NSNumber numberWithInt:0] atIndex:VMHPacketParam2Index];
-        [self.data insertObject:[NSNumber numberWithInt:dampingPercent] atIndex:VMHPacketParam2Index+1];
+        [self.data insertObject:[NSNumber numberWithInteger:dampingPercent] atIndex:VMHPacketParam2Index+1];
     } else {
-        [self.data insertObject:[NSNumber numberWithInt:VMHCommandMoveStop] atIndex:VMHPacketCommandIndex];
+        [self.data insertObject:[NSNumber numberWithInt:VMHTxCommandMoveStop] atIndex:VMHPacketCommandIndex];
     }
     [self padRemainderOfPacket];
 }
@@ -244,7 +234,7 @@ const int kDefaultDampingPercent = 50;
     [self.data removeAllObjects];
     
     [self.data insertObject:[NSNumber numberWithInt:VMHModeGeneral] atIndex:VMHPacketModeIndex];
-    [self.data insertObject:[NSNumber numberWithInt:VMHCommandSetPosition] atIndex:VMHPacketCommandIndex];
+    [self.data insertObject:[NSNumber numberWithInt:VMHTxCommandSetPosition] atIndex:VMHPacketCommandIndex];
     
     [self padRemainderOfPacket];
 }
@@ -265,7 +255,7 @@ const int kDefaultDampingPercent = 50;
     [self.data removeAllObjects];
     
     [self.data insertObject:[NSNumber numberWithInt:VMHModeTimeLapse] atIndex:VMHPacketModeIndex];
-    [self.data insertObject:[NSNumber numberWithInt:VMHCommandBeginRecording] atIndex:VMHPacketCommandIndex];
+    [self.data insertObject:[NSNumber numberWithInt:VMHTxCommandBeginRecording] atIndex:VMHPacketCommandIndex];
     
     if (![self setParametersForPacket:self.data
                            parameter1:durationSeconds
@@ -286,7 +276,7 @@ const int kDefaultDampingPercent = 50;
     [self.data removeAllObjects];
     
     [self.data insertObject:[NSNumber numberWithInt:VMHModeTimeLapse] atIndex:VMHPacketModeIndex];
-    [self.data insertObject:[NSNumber numberWithInt:VMHCommandEndRecording] atIndex:VMHPacketCommandIndex];
+    [self.data insertObject:[NSNumber numberWithInt:VMHTxCommandEndRecording] atIndex:VMHPacketCommandIndex];
     
     [self padRemainderOfPacket];
 }
@@ -307,7 +297,7 @@ const int kDefaultDampingPercent = 50;
     [self.data removeAllObjects];
     
     [self.data insertObject:[NSNumber numberWithInt:VMHModeStopMotion] atIndex:VMHPacketModeIndex];
-    [self.data insertObject:[NSNumber numberWithInt:VMHCommandBeginRecording] atIndex:VMHPacketCommandIndex];
+    [self.data insertObject:[NSNumber numberWithInt:VMHTxCommandBeginRecording] atIndex:VMHPacketCommandIndex];
     
     
     if (![self setParametersForPacket:self.data
@@ -329,7 +319,7 @@ const int kDefaultDampingPercent = 50;
     [self.data removeAllObjects];
     
     [self.data insertObject:[NSNumber numberWithInt:VMHModeStopMotion] atIndex:VMHPacketModeIndex];
-    [self.data insertObject:[NSNumber numberWithInt:VMHCommandEndRecording] atIndex:VMHPacketCommandIndex];
+    [self.data insertObject:[NSNumber numberWithInt:VMHTxCommandEndRecording] atIndex:VMHPacketCommandIndex];
     
     [self padRemainderOfPacket];
 }

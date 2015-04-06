@@ -8,14 +8,15 @@
 
 #import "StopMotionModeTableViewController.h"
 #import "PositionViewController.h"
+#import "InProgressViewController.h"
 #import "LabeledPickerView.h"
 #import "VMHHermesControllerManager.h"
 #import "VMHPacket.h"
 
-static const int kCaptureDurationSection = 0;
+static const int kCaptureDurationSection  = 0;
 static const int kPlaybackDurationSection = 1;
-static const int kPositionSection = 2;
-static const int kOptionsSection = 3;
+static const int kPositionSection         = 2;
+static const int kOptionsSection          = 3;
 
 
 @interface StopMotionModeTableViewController ()
@@ -60,8 +61,14 @@ static const int kOptionsSection = 3;
     [[VMHHermesControllerManager sharedInstance] beginStopMotionWithDurationSeconds:captureTotalSeconds
                                                                  startPositionSteps:[self.startPositionSteps integerValue]
                                                                    endPositionSteps:[self.endPositionSteps integerValue]
-                                                                     dampingPercent:(int)self.dampingSlider.value*100
+                                                                     dampingPercent:self.dampingSlider.value*100
                                                              captureIntervalSeconds:captureTotalSeconds/playbackTotalSeconds];
+    
+    // Segue to InProgress view
+    UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"Main" bundle:nil];
+    InProgressViewController *inProgressViewController = [storyboard instantiateViewControllerWithIdentifier:@"InProgressView"];
+    inProgressViewController.timeLapseMode = NO;
+    [inProgressViewController setModalPresentationStyle:UIModalPresentationFullScreen];
 }
 
 

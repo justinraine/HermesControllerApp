@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		66C9F8DE1AD204ED0084C09D /* InProgressViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 66C9F8DD1AD204ED0084C09D /* InProgressViewController.m */; };
 		87B1833B1AB917DE00BB2515 /* StopMotionModeTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 87B1833A1AB917DE00BB2515 /* StopMotionModeTableViewController.m */; };
 		87B183401AB91DCE00BB2515 /* HelpViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 87B1833F1AB91DCE00BB2515 /* HelpViewController.m */; };
 		D0048C6F1AD06CA4001193D7 /* HelpPage.html in Resources */ = {isa = PBXBuildFile; fileRef = D0048C6E1AD06CA4001193D7 /* HelpPage.html */; };
@@ -40,6 +41,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		66C9F8DC1AD204ED0084C09D /* InProgressViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = InProgressViewController.h; sourceTree = "<group>"; };
+		66C9F8DD1AD204ED0084C09D /* InProgressViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = InProgressViewController.m; sourceTree = "<group>"; };
 		87B183391AB917DE00BB2515 /* StopMotionModeTableViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StopMotionModeTableViewController.h; sourceTree = "<group>"; };
 		87B1833A1AB917DE00BB2515 /* StopMotionModeTableViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = StopMotionModeTableViewController.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		87B1833E1AB91DCE00BB2515 /* HelpViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HelpViewController.h; sourceTree = "<group>"; };
@@ -190,6 +193,8 @@
 				87B1833F1AB91DCE00BB2515 /* HelpViewController.m */,
 				D0F2346E1AB7DBF600E6D609 /* PositionViewController.h */,
 				D0F2346F1AB7DBF600E6D609 /* PositionViewController.m */,
+				66C9F8DC1AD204ED0084C09D /* InProgressViewController.h */,
+				66C9F8DD1AD204ED0084C09D /* InProgressViewController.m */,
 				D0E8EFA11ACDF91F008A6160 /* ConnectionViewController.h */,
 				D0E8EFA21ACDF91F008A6160 /* ConnectionViewController.m */,
 				D0EF9E541ACC55D2006A298E /* DeviceUnsupportedViewController.h */,
@@ -313,6 +318,7 @@
 				D04067C01AC084140088AA7B /* VMHPacket.m in Sources */,
 				D05DD6B01AAF8CE10088AF10 /* VMHHermesControllerManager.m in Sources */,
 				D0EF9E561ACC55D2006A298E /* DeviceUnsupportedViewController.m in Sources */,
+				66C9F8DE1AD204ED0084C09D /* InProgressViewController.m in Sources */,
 				87B183401AB91DCE00BB2515 /* HelpViewController.m in Sources */,
 				87B1833B1AB917DE00BB2515 /* StopMotionModeTableViewController.m in Sources */,
 				D0F234701AB7DBF600E6D609 /* PositionViewController.m in Sources */,

@@ -22,6 +22,14 @@ typedef NS_ENUM(NSUInteger, ControllerStatus) {
     kError,
 };
 
+extern NSString *const kReceivedUpdatedPositionNotification;
+extern NSString *const kReceivedUpdatedProgressNotification;
+extern NSString *const kReceivedErrorCodeNotification;
+extern NSString *const kPositionKey;
+extern NSString *const kProgressKey;
+extern NSString *const kErrorCodeKey;
+
+
 @interface VMHHermesControllerManager : NSObject <CBCentralManagerDelegate, CBPeripheralDelegate>
 
 // Public Properties
@@ -39,9 +47,10 @@ typedef NS_ENUM(NSUInteger, ControllerStatus) {
 - (BOOL)endRecording;
 - (BOOL)beginMovementRight;
 - (BOOL)beginMovementLeft;
-- (BOOL)beginMovementRightWithMaxSpeed:(int)speed damping:(int)damping;
-- (BOOL)beginMovementLeftWithMaxSpeed:(int)speed damping:(int)damping;
+- (BOOL)beginMovementLeftWithMaxSpeedPercent:(NSInteger)speedPercent dampingPercent:(NSInteger)dampingPercent;
+- (BOOL)beginMovementRightWithMaxSpeedPercent:(NSInteger)speedPercent dampingPercent:(NSInteger)dampingPercent;
 - (BOOL)endMovement;
+- (BOOL)setPosition;
 - (BOOL)beginTimeLapseWithDurationSeconds:(NSInteger)durationSeconds
                        startPositionSteps:(NSInteger)startPositionSteps
                          endPositionSteps:(NSInteger)endPositionSteps

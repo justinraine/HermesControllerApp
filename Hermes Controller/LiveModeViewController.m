@@ -84,16 +84,16 @@ int kMaxRPM1 = 230;
 - (IBAction)startLeftMovement:(id)sender {
     NSLog(@"Left button pressed -- Send command to Arduino to begin moving left");
     //[[VMHHermesControllerManager sharedInstance] beginMovementLeft];
-    [[VMHHermesControllerManager sharedInstance] beginMovementLeftWithMaxSpeed:roundf(self.maxSpeedSlider.value*kMaxRPM1)
-                                                                       damping:roundf(self.dampingSlider.value*100)];
+    [[VMHHermesControllerManager sharedInstance] beginMovementLeftWithMaxSpeedPercent:roundf(self.maxSpeedSlider.value*100)
+                                                                       dampingPercent:roundf(self.dampingSlider.value*100)];
 }
 
 
 - (IBAction)startRightMovement:(id)sender {
     NSLog(@"Right button pressed -- Send command to Arduino to begin moving right");
     //[[VMHHermesControllerManager sharedInstance] beginMovementRight];
-    [[VMHHermesControllerManager sharedInstance] beginMovementRightWithMaxSpeed:roundf(self.maxSpeedSlider.value*kMaxRPM1)
-                                                                        damping:roundf(self.dampingSlider.value*100)];
+    [[VMHHermesControllerManager sharedInstance] beginMovementRightWithMaxSpeedPercent:roundf(self.maxSpeedSlider.value*100)
+                                                                        dampingPercent:roundf(self.dampingSlider.value*100)];
 }
 
 

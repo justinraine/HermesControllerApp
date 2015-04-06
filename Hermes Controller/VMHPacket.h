@@ -19,6 +19,22 @@ typedef NS_ENUM(NSUInteger, MovementDirection) {
     MovementStop,
 };
 
+typedef NS_ENUM(NSInteger, VMHRxCommands) {
+    VMHRxCommandCurrentPosition  = 0x00,
+    VMHRxCommandCurrentProgress  = 0x01,
+    VMHRxCommandError            = 0x02,
+};
+
+typedef NS_ENUM(NSInteger, VMHPacketPositions) {
+    VMHPacketModeIndex       = 0,
+    VMHPacketCommandIndex    = 1,
+    VMHPacketParam1Index     = 2, // 2 bytes long
+    VMHPacketParam2Index     = 4, // 2 bytes long
+    VMHPacketParam3Index     = 6, // 2 bytes long
+    VMHPacketParam4Index     = 8,
+    VMHPacketParam5Index     = 9,
+};
+
 extern const int kPacketByteLength;
 
 
@@ -32,8 +48,8 @@ extern const int kPacketByteLength;
 - (void)configureRecordingPacketWithStatus:(RecordStatus)status;
 - (void)configureMovementPacketWithDirection:(MovementDirection)direction;
 - (void)configureMovementPacketWithDirection:(MovementDirection)direction
-                             maxSpeedPercent:(int)speedPercent
-                              dampingPercent:(int)dampingPercent;
+                             maxSpeedPercent:(NSInteger)speedPercent
+                              dampingPercent:(NSInteger)dampingPercent;
 - (void)configureSetPositionPacket;
 - (BOOL)configureTimeLapseModePacketWithDurationSeconds:(NSInteger)durationSeconds
                                      startPositionSteps:(NSInteger)startPositionSteps

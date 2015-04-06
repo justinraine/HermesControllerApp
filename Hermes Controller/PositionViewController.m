@@ -8,17 +8,20 @@
 
 #import "PositionViewController.h"
 #import "VMHHermesControllerManager.h"
+#import "AppDelegate.h"
 
 NSString *const kPositionUpdateNotification = @"positionUpdateNotification";
 NSString *const kPositionStepsKey = @"positionStepsKey";
 NSString *const kSetStartPositionKey = @"setStartPositionKey";
+
+typedef void(^myCompletion)(BOOL);
 
 @interface PositionViewController ()
 
 @property (nonatomic, weak) IBOutlet UILabel *message;
 @property (nonatomic, weak) IBOutlet UIButton *leftButton;
 @property (nonatomic, weak) IBOutlet UIButton *rightButton;
-@property (nonatomic, strong) NSNumber *currentPosition;
+@property (nonatomic, strong) NSNumber *currentPositionSteps;
 
 @end
 
@@ -33,6 +36,11 @@ NSString *const kSetStartPositionKey = @"setStartPositionKey";
     } else {
         self.message.text =  @"Move the camera to the desired end position and press Set.";
     }
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(positionUpdated:)
+                                                 name:kReceivedUpdatedPositionNotification
+                                               object:[VMHHermesControllerManager sharedInstance]];
 }
 
 - (void)didReceiveMemoryWarning {
@@ -41,19 +49,8 @@ NSString *const kSetStartPositionKey = @"setStartPositionKey";
 }
 
 - (IBAction)setPosition:(id)sender {
-    if (self.setStartPosition) {
-        self.currentPosition = [NSNumber numberWithInt:100];
-    } else {
-        self.currentPosition = [NSNumber numberWithInt:2000];
-    }
-    //self.currentPosition = [NSNumber numberWithInt:arc4random() % 2200]; // get response from Controller
-    NSLog(@"Position set: %@ ** Dummy Value **", self.currentPosition);
-    
-    NSDictionary *currentPosition = @{kPositionStepsKey : self.currentPosition,
-                                      kSetStartPositionKey : [NSNumber numberWithBool:self.setStartPosition]};
-    [[NSNotificationCenter defaultCenter] postNotificationName:kPositionUpdateNotification object:self userInfo:currentPosition];
-    
-    [self dismissViewControllerAnimated:YES completion:nil];
+    [(AppDelegate *)[[UIApplication sharedApplication] delegate] showBasicHUD];
+    [[VMHHermesControllerManager sharedInstance] setPosition];
 }
 
 - (IBAction)startLeftMovement:(id)sender {
@@ -77,5 +74,20 @@ NSString *const kSetStartPositionKey = @"setStartPositionKey";
     [[VMHHermesControllerManager sharedInstance] endMovement];
 }
 
+
+
+#pragma mark - Private Methods
+
+- (void)positionUpdated:(NSNotification *)notification {
+    self.currentPositionSteps = [[notification userInfo] objectForKey:kPositionStepsKey];
+    
+    // Send updated position to either TimeLapseViewController or StopMotionViewController depending on who is currently observing
+    NSDictionary *userInfo = @{kPositionStepsKey    : self.currentPositionSteps,
+                               kSetStartPositionKey : [NSNumber numberWithBool:self.setStartPosition]};
+    [[NSNotificationCenter defaultCenter] postNotificationName:kPositionUpdateNotification object:self userInfo:userInfo];
+    
+    [(AppDelegate *)[[UIApplication sharedApplication] delegate] hideHUD];
+    [self dismissViewControllerAnimated:YES completion:nil];
+}
 
 @end

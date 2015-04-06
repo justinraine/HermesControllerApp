@@ -11,6 +11,13 @@
 #import "VMHPacket.h"
 #import "Constants.h"
 
+NSString *const kReceivedUpdatedPositionNotification = @"positionReceivedNotification";
+NSString *const kReceivedUpdatedProgressNotification = @"progressReceivedNotification";
+NSString *const kReceivedErrorCodeNotification = @"errorReceivedNotificiation";
+NSString *const kPositionKey = @"absolutePositionKey";
+NSString *const kProgressKey = @"progressKey";
+NSString *const kErrorCodeKey = @"errorCodeKey";
+
 
 @interface VMHHermesControllerManager()
 
@@ -161,7 +168,7 @@ int kMaxRPM = 230;
 }
 
 
-- (BOOL)beginMovementLeftWithMaxSpeedPercent:(int)speedPercent dampingPercent:(int)dampingPercent{
+- (BOOL)beginMovementLeftWithMaxSpeedPercent:(NSInteger)speedPercent dampingPercent:(NSInteger)dampingPercent{
     if (self.status == kConnected) {
         [self.packet configureMovementPacketWithDirection:MovementLeft
                                           maxSpeedPercent:speedPercent
@@ -177,7 +184,7 @@ int kMaxRPM = 230;
 }
 
 
-- (BOOL)beginMovementRightWithMaxSpeedPercent:(int)speedPercent damping:(int)dampingPercent {
+- (BOOL)beginMovementRightWithMaxSpeedPercent:(NSInteger)speedPercent dampingPercent:(NSInteger)dampingPercent {
     if (self.status == kConnected) {
         [self.packet configureMovementPacketWithDirection:MovementRight
                                           maxSpeedPercent:speedPercent
@@ -206,6 +213,20 @@ int kMaxRPM = 230;
         } else {
             NSLog(@"Command Packet: NO PACKET SENT\n\n");
         }
+        return YES;
+    } else {
+        return NO;
+    }
+}
+
+
+- (BOOL)setPosition {
+    if (self.status == kConnected) {
+        [self.packet configureSetPositionPacket];
+        [self.packet printPacket:YES];
+        [self.connectedPeripheral writeValue:[self.packet dataFormat]
+                           forCharacteristic:self.txCharacteristic
+                                        type:CBCharacteristicWriteWithoutResponse];
         return YES;
     } else {
         return NO;
@@ -498,7 +519,12 @@ int kMaxRPM = 230;
 
 - (void)peripheral:(CBPeripheral *)peripheral didUpdateValueForCharacteristic:(CBCharacteristic *)characteristic error:(NSError *)error {
     if (!error) {
-        NSLog(@"Services of peripheral with UUID: %s found",[[[peripheral identifier] UUIDString] UTF8String]);
+        //NSLog(@"Services of peripheral with UUID: %s found",[[[peripheral identifier] UUIDString] UTF8String]);
+        NSLog(@"peripheral:didUpdateValueForCharacteristic");
+        if (characteristic.UUID == self.rxCharacteristic.UUID) {
+            NSLog(@"Data received from peripheral");
+            [self processDataFromCharacteristic:characteristic];
+        }
     }
     else {
         NSLog(@"updateValueForCharacteristic failed!");
@@ -609,6 +635,53 @@ int kMaxRPM = 230;
     } else {
         NSLog(@"Error: Unexpected condition - endScanForHermesController request while Bluetooth is in state %d (%s)",
               (int)self.centralManager.state, [self centralManagerStateToString:self.centralManager.state]);
+    }
+}
+
+- (void)processDataFromCharacteristic:(CBCharacteristic *)characteristic {
+    //NSData *data = [characteristic value];
+    //NSUInteger length = [data length];
+    //Byte *byteData= (Byte*)malloc(length);
+    
+    NSData *data = [characteristic value];
+    NSUInteger byteLength = [data length];
+    uint8_t byteArray[byteLength];
+    [data getBytes:&byteArray length:byteLength];
+    
+    // Get packet string
+    NSString *packetString = @"";
+    for (int i = 0; i < byteLength; i++) {
+        NSString *nextByte = [NSString stringWithFormat:@"%c", byteArray[i]];
+        packetString = [packetString stringByAppendingString:nextByte];
+    }
+    NSLog(@"Received packet: %@", packetString);
+    
+    // If the received packet is a Hardware Response packet
+    if (byteArray[VMHPacketModeIndex] == 0x00) {
+        int command = byteArray[VMHPacketCommandIndex];
+        
+        if (command == VMHRxCommandCurrentPosition) {
+            // Send currentPositionSteps to PositionViewController
+            NSLog(@"Received Current Position Packet");
+            NSNumber *currentPositionSteps = [NSNumber numberWithInt:byteArray[VMHPacketParam1Index]];
+            NSDictionary *userInfo = @{kPositionKey : currentPositionSteps};
+            [[NSNotificationCenter defaultCenter] postNotificationName:kReceivedUpdatedPositionNotification
+                                                                object:self userInfo:userInfo];
+        } else if (command == VMHRxCommandCurrentProgress) {
+            // Send currentProgressPercent to InProgressViewController
+            NSLog(@"Received Current Progress Packet");
+            NSNumber *progressPercent = [NSNumber numberWithInt:byteArray[VMHPacketParam1Index]];
+            NSDictionary *userInfo = @{kProgressKey : progressPercent};
+            [[NSNotificationCenter defaultCenter] postNotificationName:kReceivedUpdatedProgressNotification
+                                                                object:self userInfo:userInfo];
+        } else if (command == VMHRxCommandError) {
+            // Send errorCode to AppDelegate
+            NSLog(@"Received Error Packet");
+            NSNumber *errorCode = [NSNumber numberWithInt:byteArray[VMHPacketParam1Index]];
+            NSDictionary *userInfo = @{kErrorCodeKey : errorCode};
+            [[NSNotificationCenter defaultCenter] postNotificationName:kReceivedErrorCodeNotification
+                                                                object:self userInfo:userInfo];
+        }
     }
 }
 
