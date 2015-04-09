@@ -11,6 +11,8 @@
 #import "Constants.h"
 #import "DeviceUnsupportedViewController.h"
 #import "ConnectionViewController.h"
+#import "PositionViewController.h"
+#import "InProgressViewController.h"
 
 NS_ENUM(NSInteger, alertTag) {
     kUnsupportedTag,
@@ -70,12 +72,12 @@ NS_ENUM(NSInteger, alertTag) {
 #pragma mark - Public Methods
 
 - (void)showBasicHUD {
-    NSLog(@"showBasicHUD");
+    //NSLog(@"showBasicHUD");
     [self HUDSetup];
 }
 
 - (void)showCaptureHUD {
-    NSLog(@"showCaptureHUD");
+    //NSLog(@"showCaptureHUD");
     [self HUDSetup];
     self.HUD.labelText = @"Capturing...";
     self.HUD.mode = MBProgressHUDModeAnnularDeterminate;
@@ -83,7 +85,7 @@ NS_ENUM(NSInteger, alertTag) {
 
 - (void)hideHUD {
     if ([self isDisplayingHUD]) {
-        NSLog(@"hideHUD isDisplayingHUD");
+        //NSLog(@"hideHUD isDisplayingHUD");
         self.displayingHUD = NO;
         [[UIApplication sharedApplication] endIgnoringInteractionEvents];
         [self.HUD hide:YES];
@@ -99,7 +101,7 @@ NS_ENUM(NSInteger, alertTag) {
 #pragma mark - Private Methods
 
 - (void)HUDSetup {
-    NSLog(@"HUDSetup");
+    //NSLog(@"HUDSetup");
     // Hide any currently displaying HUD
     //[self.HUD hide:YES]; // necessary?
     
@@ -202,6 +204,12 @@ NS_ENUM(NSInteger, alertTag) {
             }
         });
     } else if (updatedStatus == kDisconnected) {
+        UIViewController *rootView = [UIApplication sharedApplication].keyWindow.rootViewController;
+        NSLog(@"%@", [self.window.rootViewController.presentedViewController class]);
+        if ([self.window.rootViewController.presentedViewController class] && [VMHHermesControllerManager sharedInstance].status == kDisconnected) {
+            [rootView dismissViewControllerAnimated:YES completion:nil];
+        }
+        
         [self hideHUD];
         [self displayUnsuccessfulAlertWithTitle:@"Bluetooth Disconnection"
                                         message:@"Hermes has been disconnected"];

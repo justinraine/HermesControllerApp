@@ -49,6 +49,7 @@ typedef void(^myCompletion)(BOOL);
 }
 
 - (IBAction)setPosition:(id)sender {
+    NSLog(@"Set button pressed -- Send command to Arduino requesting current step location");
     [(AppDelegate *)[[UIApplication sharedApplication] delegate] showBasicHUD];
     [[VMHHermesControllerManager sharedInstance] setPosition];
 }
@@ -79,7 +80,7 @@ typedef void(^myCompletion)(BOOL);
 #pragma mark - Private Methods
 
 - (void)positionUpdated:(NSNotification *)notification {
-    self.currentPositionSteps = [[notification userInfo] objectForKey:kPositionStepsKey];
+    self.currentPositionSteps = [[notification userInfo] objectForKey:kPositionKey];
     
     // Send updated position to either TimeLapseViewController or StopMotionViewController depending on who is currently observing
     NSDictionary *userInfo = @{kPositionStepsKey    : self.currentPositionSteps,

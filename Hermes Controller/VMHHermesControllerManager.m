@@ -168,10 +168,10 @@ int kMaxRPM = 230;
 }
 
 
-- (BOOL)beginMovementLeftWithMaxSpeedPercent:(NSInteger)speedPercent dampingPercent:(NSInteger)dampingPercent{
+- (BOOL)beginMovementLeftWithMaxSpeedRPM:(NSUInteger)speedRPM dampingPercent:(NSUInteger)dampingPercent{
     if (self.status == kConnected) {
         [self.packet configureMovementPacketWithDirection:MovementLeft
-                                          maxSpeedPercent:speedPercent
+                                              maxSpeedRPM:speedRPM
                                            dampingPercent:dampingPercent];
         [self.packet printPacket:YES];
         [self.connectedPeripheral writeValue:[self.packet dataFormat]
@@ -184,10 +184,10 @@ int kMaxRPM = 230;
 }
 
 
-- (BOOL)beginMovementRightWithMaxSpeedPercent:(NSInteger)speedPercent dampingPercent:(NSInteger)dampingPercent {
+- (BOOL)beginMovementRightWithMaxSpeedRPM:(NSUInteger)speedRPM dampingPercent:(NSUInteger)dampingPercent {
     if (self.status == kConnected) {
         [self.packet configureMovementPacketWithDirection:MovementRight
-                                          maxSpeedPercent:speedPercent
+                                              maxSpeedRPM:speedRPM
                                            dampingPercent:dampingPercent];
         [self.packet printPacket:YES];
         [self.connectedPeripheral writeValue:[self.packet dataFormat]
@@ -234,10 +234,10 @@ int kMaxRPM = 230;
 }
 
 
-- (BOOL)beginTimeLapseWithDurationSeconds:(NSInteger)durationSeconds
-                       startPositionSteps:(NSInteger)startPositionSteps
-                         endPositionSteps:(NSInteger)endPositionSteps
-                           dampingPercent:(NSInteger)dampingPercent
+- (BOOL)beginTimeLapseWithDurationSeconds:(NSUInteger)durationSeconds
+                       startPositionSteps:(NSUInteger)startPositionSteps
+                         endPositionSteps:(NSUInteger)endPositionSteps
+                           dampingPercent:(NSUInteger)dampingPercent
                                      loop:(BOOL)loop {
     if (self.status == kConnected) {
         [self.packet configureTimeLapseModePacketWithDurationSeconds:durationSeconds
@@ -270,11 +270,11 @@ int kMaxRPM = 230;
 }
 
 
-- (BOOL)beginStopMotionWithDurationSeconds:(NSInteger)durationSeconds
-                        startPositionSteps:(NSInteger)startPositionSteps
-                          endPositionSteps:(NSInteger)endPositionSteps
-                            dampingPercent:(NSInteger)dampingPercent
-                    captureIntervalSeconds:(NSInteger)captureIntervalSeconds {
+- (BOOL)beginStopMotionWithDurationSeconds:(NSUInteger)durationSeconds
+                        startPositionSteps:(NSUInteger)startPositionSteps
+                          endPositionSteps:(NSUInteger)endPositionSteps
+                            dampingPercent:(NSUInteger)dampingPercent
+                    captureIntervalSeconds:(NSUInteger)captureIntervalSeconds {
     if (self.status == kConnected) {
         [self.packet configureStopMotionModePacketWithDurationSeconds:durationSeconds
                                                    startPositionSteps:startPositionSteps
@@ -295,6 +295,7 @@ int kMaxRPM = 230;
 - (BOOL)endStopMotion {
     if (self.status == kConnected) {
         [self.packet configureStopMotionModeEndRecordingPacket];
+        [self.packet printPacket:YES];
         [self.connectedPeripheral writeValue:[self.packet dataFormat]
                            forCharacteristic:self.txCharacteristic
                                         type:CBCharacteristicWriteWithoutResponse];
@@ -520,9 +521,8 @@ int kMaxRPM = 230;
 - (void)peripheral:(CBPeripheral *)peripheral didUpdateValueForCharacteristic:(CBCharacteristic *)characteristic error:(NSError *)error {
     if (!error) {
         //NSLog(@"Services of peripheral with UUID: %s found",[[[peripheral identifier] UUIDString] UTF8String]);
-        NSLog(@"peripheral:didUpdateValueForCharacteristic");
         if (characteristic.UUID == self.rxCharacteristic.UUID) {
-            NSLog(@"Data received from peripheral");
+            NSLog(@"Data received from Rx Channel");
             [self processDataFromCharacteristic:characteristic];
         }
     }
@@ -639,45 +639,36 @@ int kMaxRPM = 230;
 }
 
 - (void)processDataFromCharacteristic:(CBCharacteristic *)characteristic {
-    //NSData *data = [characteristic value];
-    //NSUInteger length = [data length];
-    //Byte *byteData= (Byte*)malloc(length);
-    
-    NSData *data = [characteristic value];
-    NSUInteger byteLength = [data length];
-    uint8_t byteArray[byteLength];
-    [data getBytes:&byteArray length:byteLength];
-    
-    // Get packet string
-    NSString *packetString = @"";
-    for (int i = 0; i < byteLength; i++) {
-        NSString *nextByte = [NSString stringWithFormat:@"%c", byteArray[i]];
-        packetString = [packetString stringByAppendingString:nextByte];
-    }
-    NSLog(@"Received packet: %@", packetString);
-    
+    VMHPacket *receivedPacket = [[VMHPacket alloc] initWithData:characteristic.value];
+
     // If the received packet is a Hardware Response packet
-    if (byteArray[VMHPacketModeIndex] == 0x00) {
-        int command = byteArray[VMHPacketCommandIndex];
+    if ([receivedPacket mode] == 0x00) {
         
-        if (command == VMHRxCommandCurrentPosition) {
+        if ([receivedPacket command] == VMHRxCommandCurrentPosition) {
             // Send currentPositionSteps to PositionViewController
             NSLog(@"Received Current Position Packet");
-            NSNumber *currentPositionSteps = [NSNumber numberWithInt:byteArray[VMHPacketParam1Index]];
+            NSNumber *currentPositionSteps = [NSNumber numberWithInt:[receivedPacket parameter1]];
             NSDictionary *userInfo = @{kPositionKey : currentPositionSteps};
             [[NSNotificationCenter defaultCenter] postNotificationName:kReceivedUpdatedPositionNotification
                                                                 object:self userInfo:userInfo];
-        } else if (command == VMHRxCommandCurrentProgress) {
+            
             // Send currentProgressPercent to InProgressViewController
             NSLog(@"Received Current Progress Packet");
-            NSNumber *progressPercent = [NSNumber numberWithInt:byteArray[VMHPacketParam1Index]];
+            NSNumber *progressPercent = [NSNumber numberWithInt:[receivedPacket parameter2]];
+            userInfo = @{kProgressKey : progressPercent};
+            [[NSNotificationCenter defaultCenter] postNotificationName:kReceivedUpdatedProgressNotification
+                                                                object:self userInfo:userInfo];
+        } else if ([receivedPacket command] == VMHRxCommandCurrentProgress) {
+            // Send currentProgressPercent to InProgressViewController
+            NSLog(@"Received Current Progress Packet");
+            NSNumber *progressPercent = [NSNumber numberWithInt:[receivedPacket parameter1]];
             NSDictionary *userInfo = @{kProgressKey : progressPercent};
             [[NSNotificationCenter defaultCenter] postNotificationName:kReceivedUpdatedProgressNotification
                                                                 object:self userInfo:userInfo];
-        } else if (command == VMHRxCommandError) {
+        } else if ([receivedPacket command] == VMHRxCommandError) {
             // Send errorCode to AppDelegate
             NSLog(@"Received Error Packet");
-            NSNumber *errorCode = [NSNumber numberWithInt:byteArray[VMHPacketParam1Index]];
+            NSNumber *errorCode = [NSNumber numberWithInt:[receivedPacket parameter1]];
             NSDictionary *userInfo = @{kErrorCodeKey : errorCode};
             [[NSNotificationCenter defaultCenter] postNotificationName:kReceivedErrorCodeNotification
                                                                 object:self userInfo:userInfo];

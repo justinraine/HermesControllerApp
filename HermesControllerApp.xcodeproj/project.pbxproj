@@ -18,7 +18,6 @@
 		D0421B7D1AA96CA50069C601 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = D0421B7C1AA96CA50069C601 /* AppDelegate.m */; };
 		D0421B831AA96CA50069C601 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D0421B811AA96CA50069C601 /* Main.storyboard */; };
 		D0421B851AA96CA50069C601 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D0421B841AA96CA50069C601 /* Images.xcassets */; };
-		D0421B881AA96CA50069C601 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = D0421B861AA96CA50069C601 /* LaunchScreen.xib */; };
 		D05880C01AB2902E006D7760 /* 37x-Checkmark.png in Resources */ = {isa = PBXBuildFile; fileRef = D05880BE1AB2902E006D7760 /* 37x-Checkmark.png */; };
 		D05880C11AB2902E006D7760 /* 37x-Checkmark@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = D05880BF1AB2902E006D7760 /* 37x-Checkmark@2x.png */; };
 		D05DD6A31AAE82710088AF10 /* Constants.m in Sources */ = {isa = PBXBuildFile; fileRef = D05DD6A21AAE82710088AF10 /* Constants.m */; };
@@ -61,7 +60,6 @@
 		D0421B7C1AA96CA50069C601 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
 		D0421B821AA96CA50069C601 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		D0421B841AA96CA50069C601 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
-		D0421B871AA96CA50069C601 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/LaunchScreen.xib; sourceTree = "<group>"; };
 		D0421B8D1AA96CA50069C601 /* HermesControllerAppTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = HermesControllerAppTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		D0421B921AA96CA50069C601 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		D05880BE1AB2902E006D7760 /* 37x-Checkmark.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "37x-Checkmark.png"; sourceTree = "<group>"; };
@@ -127,7 +125,6 @@
 				D0751F9C1AACF0CF00439377 /* Controller */,
 				D0421B811AA96CA50069C601 /* Main.storyboard */,
 				D0421B841AA96CA50069C601 /* Images.xcassets */,
-				D0421B861AA96CA50069C601 /* LaunchScreen.xib */,
 				D0421B771AA96CA50069C601 /* Supporting Files */,
 			);
 			name = HermesControllerApp;
@@ -287,7 +284,6 @@
 				D05880C01AB2902E006D7760 /* 37x-Checkmark.png in Resources */,
 				D0421B831AA96CA50069C601 /* Main.storyboard in Resources */,
 				D0048C6F1AD06CA4001193D7 /* HelpPage.html in Resources */,
-				D0421B881AA96CA50069C601 /* LaunchScreen.xib in Resources */,
 				D05880C11AB2902E006D7760 /* 37x-Checkmark@2x.png in Resources */,
 				D0421B851AA96CA50069C601 /* Images.xcassets in Resources */,
 			);
@@ -349,14 +345,6 @@
 				D0421B821AA96CA50069C601 /* Base */,
 			);
 			name = Main.storyboard;
-			sourceTree = "<group>";
-		};
-		D0421B861AA96CA50069C601 /* LaunchScreen.xib */ = {
-			isa = PBXVariantGroup;
-			children = (
-				D0421B871AA96CA50069C601 /* Base */,
-			);
-			name = LaunchScreen.xib;
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */
@@ -442,6 +430,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				INFOPLIST_FILE = "Hermes Controller/Info.plist";
@@ -455,6 +444,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				INFOPLIST_FILE = "Hermes Controller/Info.plist";

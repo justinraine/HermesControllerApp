@@ -39,6 +39,11 @@ static const int kOptionsSection = 2;
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    
+    [[VMHHermesControllerManager sharedInstance] addObserver:self
+                                                  forKeyPath:@"status"
+                                                     options:0
+                                                     context:nil];
 }
 
 - (void)didReceiveMemoryWarning {
@@ -59,14 +64,16 @@ static const int kOptionsSection = 2;
     [[VMHHermesControllerManager sharedInstance] beginTimeLapseWithDurationSeconds:durationSeconds
                                                                 startPositionSteps:[self.startPositionSteps integerValue]
                                                                   endPositionSteps:[self.endPositionSteps integerValue]
-                                                                    dampingPercent:(int)self.dampingSlider.value*100
+                                                                    dampingPercent:(int)roundf(self.dampingSlider.value*100)
                                                                               loop:self.repeatSwitch.on];
     
     // Segue to InProgress view
     UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"Main" bundle:nil];
+    UIViewController *rootView = [[[UIApplication sharedApplication] keyWindow] rootViewController];
     InProgressViewController *inProgressViewController = [storyboard instantiateViewControllerWithIdentifier:@"InProgressView"];
     inProgressViewController.timeLapseMode = YES;
     [inProgressViewController setModalPresentationStyle:UIModalPresentationFullScreen];
+    [rootView presentViewController:inProgressViewController animated:YES completion:nil];
 }
 
 
@@ -97,14 +104,29 @@ static const int kOptionsSection = 2;
     
     if (setStartPosition) {
         self.startPositionSteps = updatedPositionSteps;
-        NSLog(@"Updated Time Lapse Mode Start Position: %@", self.startPositionSteps);
+        NSLog(@"Updated Time Lapse Mode Start Position: %d", (short)[self.startPositionSteps intValue]);
     } else {
         self.endPositionSteps = updatedPositionSteps;
-        NSLog(@"Updated Time Lapse Mode End Position: %@", self.endPositionSteps);
+        NSLog(@"Updated Time Lapse Mode End Position: %d", (short)[self.endPositionSteps intValue]);
     }
     
     // Unregister for notificiations
     [[NSNotificationCenter defaultCenter] removeObserver:self name:kPositionUpdateNotification object:nil];
+}
+
+
+- (void)observeValueForKeyPath:(NSString *)keyPath
+                      ofObject:(id)object
+                        change:(NSDictionary *)change
+                       context:(void *)context {
+    if ([keyPath isEqualToString:@"status"] && [VMHHermesControllerManager sharedInstance].status == kDisconnected) {
+        NSLog(@"Bluetooth disconnection detected. Resetting stored Time Lapse positions");
+        self.startPositionSteps = nil;
+        self.endPositionSteps = nil;
+        self.startPositionStatusLabel.text = @"Not Set";
+        self.endPositionStatusLabel.text = @"Not Set";
+        [self updateStartButtonEnabled];
+    }
 }
 
 

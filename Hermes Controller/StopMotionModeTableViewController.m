@@ -17,6 +17,7 @@ static const int kCaptureDurationSection  = 0;
 static const int kPlaybackDurationSection = 1;
 static const int kPositionSection         = 2;
 static const int kOptionsSection          = 3;
+const int kFramesPerSecond                = 24;
 
 
 @interface StopMotionModeTableViewController ()
@@ -41,6 +42,11 @@ static const int kOptionsSection          = 3;
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    
+    [[VMHHermesControllerManager sharedInstance] addObserver:self
+                                                  forKeyPath:@"status"
+                                                     options:0
+                                                     context:nil];
 }
 
 - (void)didReceiveMemoryWarning {
@@ -58,17 +64,20 @@ static const int kOptionsSection          = 3;
     NSInteger captureTotalSeconds = ((captureHours * 60) + captureMinutes) * 60;
     NSInteger playbackTotalSeconds = [self.playbackDurationPicker selectedRowInComponent:0] % 60;
     
+    
     [[VMHHermesControllerManager sharedInstance] beginStopMotionWithDurationSeconds:captureTotalSeconds
                                                                  startPositionSteps:[self.startPositionSteps integerValue]
                                                                    endPositionSteps:[self.endPositionSteps integerValue]
-                                                                     dampingPercent:self.dampingSlider.value*100
-                                                             captureIntervalSeconds:captureTotalSeconds/playbackTotalSeconds];
+                                                                     dampingPercent:(int)roundf(self.dampingSlider.value*100)
+                                                             captureIntervalSeconds:captureTotalSeconds/(playbackTotalSeconds*kFramesPerSecond)];
     
     // Segue to InProgress view
     UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"Main" bundle:nil];
+    UIViewController *rootView = [[[UIApplication sharedApplication] keyWindow] rootViewController];
     InProgressViewController *inProgressViewController = [storyboard instantiateViewControllerWithIdentifier:@"InProgressView"];
     inProgressViewController.timeLapseMode = NO;
     [inProgressViewController setModalPresentationStyle:UIModalPresentationFullScreen];
+    [rootView presentViewController:inProgressViewController animated:YES completion:nil];
 }
 
 
@@ -91,7 +100,7 @@ static const int kOptionsSection          = 3;
 
 
 
-#pragma mark - Notification Handler
+#pragma mark - KVO and Notification Handler
 
 - (void)positionDidUpdate:(NSNotification *)notification {
     NSNumber *updatedPositionSteps = [notification.userInfo valueForKey:kPositionStepsKey];
@@ -99,14 +108,29 @@ static const int kOptionsSection          = 3;
     
     if (setStartPosition) {
         self.startPositionSteps = updatedPositionSteps;
-        NSLog(@"Updated Stop Motion Mode Start Position: %@", self.startPositionSteps);
+        NSLog(@"Updated Stop Motion Mode Start Position: %@\n\n", self.startPositionSteps);
     } else {
         self.endPositionSteps = updatedPositionSteps;
-        NSLog(@"Updated Stop Motion Mode End Position: %@", self.endPositionSteps);
+        NSLog(@"Updated Stop Motion Mode End Position: %@\n\n", self.endPositionSteps);
     }
     
     // Unregister for notificiations
     [[NSNotificationCenter defaultCenter] removeObserver:self name:kPositionUpdateNotification object:nil];
+}
+
+
+- (void)observeValueForKeyPath:(NSString *)keyPath
+                      ofObject:(id)object
+                        change:(NSDictionary *)change
+                       context:(void *)context {
+    if ([keyPath isEqualToString:@"status"] && [VMHHermesControllerManager sharedInstance].status == kDisconnected) {
+        NSLog(@"Bluetooth disconnection detected. Resetting stored Stop Motion positions");
+        self.startPositionSteps = nil;
+        self.endPositionSteps = nil;
+        self.startPositionStatusLabel.text = @"Not Set";
+        self.endPositionStatusLabel.text = @"Not Set";
+        [self updateStartButtonEnabled];
+    }
 }
 
 

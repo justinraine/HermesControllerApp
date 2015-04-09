@@ -8,7 +8,7 @@
 
 #import <Foundation/Foundation.h>
 
-typedef NS_ENUM(NSUInteger, RecordStatus){
+typedef NS_ENUM(NSUInteger, RecordStatus){ 
     RecordingBegin,
     RecordingEnd,
 };
@@ -19,13 +19,13 @@ typedef NS_ENUM(NSUInteger, MovementDirection) {
     MovementStop,
 };
 
-typedef NS_ENUM(NSInteger, VMHRxCommands) {
+typedef NS_ENUM(NSUInteger, VMHRxCommands) {
     VMHRxCommandCurrentPosition  = 0x00,
     VMHRxCommandCurrentProgress  = 0x01,
     VMHRxCommandError            = 0x02,
 };
 
-typedef NS_ENUM(NSInteger, VMHPacketPositions) {
+typedef NS_ENUM(NSUInteger, VMHPacketPositions) {
     VMHPacketModeIndex       = 0,
     VMHPacketCommandIndex    = 1,
     VMHPacketParam1Index     = 2, // 2 bytes long
@@ -40,28 +40,36 @@ extern const int kPacketByteLength;
 
 @interface VMHPacket : NSObject
 
+- (id)initWithData:(NSData *)data;
+
 // Output Methods
+
+
 - (void)printPacket:(BOOL)pretty;
 - (NSData *)dataFormat;
+- (int)mode;
+- (int)command;
+- (int)parameter1;
+- (int)parameter2;
 
 // Packet Configuration Methods
 - (void)configureRecordingPacketWithStatus:(RecordStatus)status;
 - (void)configureMovementPacketWithDirection:(MovementDirection)direction;
 - (void)configureMovementPacketWithDirection:(MovementDirection)direction
-                             maxSpeedPercent:(NSInteger)speedPercent
-                              dampingPercent:(NSInteger)dampingPercent;
+                             maxSpeedRPM:(NSUInteger)speedRPM
+                              dampingPercent:(NSUInteger)dampingPercent;
 - (void)configureSetPositionPacket;
-- (BOOL)configureTimeLapseModePacketWithDurationSeconds:(NSInteger)durationSeconds
-                                     startPositionSteps:(NSInteger)startPositionSteps
-                                       endPositionSteps:(NSInteger)endPositionSteps
-                                         dampingPercent:(NSInteger)dampingPercent
+- (BOOL)configureTimeLapseModePacketWithDurationSeconds:(NSUInteger)durationSeconds
+                                     startPositionSteps:(NSUInteger)startPositionSteps
+                                       endPositionSteps:(NSUInteger)endPositionSteps
+                                         dampingPercent:(NSUInteger)dampingPercent
                                                    loop:(BOOL)loop;
 - (void)configureTimeLapseModeEndRecordingPacket;
-- (BOOL)configureStopMotionModePacketWithDurationSeconds:(NSInteger)totalDurationSeconds
-                                      startPositionSteps:(NSInteger)startPositionSteps
-                                        endPositionSteps:(NSInteger)endPositionSteps
-                                          dampingPercent:(NSInteger)dampingPercent
-                                  captureIntervalSeconds:(NSInteger)captureIntervalSeconds;
+- (BOOL)configureStopMotionModePacketWithDurationSeconds:(NSUInteger)totalDurationSeconds
+                                      startPositionSteps:(NSUInteger)startPositionSteps
+                                        endPositionSteps:(NSUInteger)endPositionSteps
+                                          dampingPercent:(NSUInteger)dampingPercent
+                                  captureIntervalSeconds:(NSUInteger)captureIntervalSeconds;
 - (void)configureStopMotionModeEndRecordingPacket;
 
 @end

@@ -47,20 +47,20 @@ extern NSString *const kErrorCodeKey;
 - (BOOL)endRecording;
 - (BOOL)beginMovementRight;
 - (BOOL)beginMovementLeft;
-- (BOOL)beginMovementLeftWithMaxSpeedPercent:(NSInteger)speedPercent dampingPercent:(NSInteger)dampingPercent;
-- (BOOL)beginMovementRightWithMaxSpeedPercent:(NSInteger)speedPercent dampingPercent:(NSInteger)dampingPercent;
+- (BOOL)beginMovementLeftWithMaxSpeedRPM:(NSUInteger)speedRPM dampingPercent:(NSUInteger)dampingPercent;
+- (BOOL)beginMovementRightWithMaxSpeedRPM:(NSUInteger)speedRPM dampingPercent:(NSUInteger)dampingPercent;
 - (BOOL)endMovement;
 - (BOOL)setPosition;
-- (BOOL)beginTimeLapseWithDurationSeconds:(NSInteger)durationSeconds
-                       startPositionSteps:(NSInteger)startPositionSteps
-                         endPositionSteps:(NSInteger)endPositionSteps
-                           dampingPercent:(NSInteger)dampingPercent
+- (BOOL)beginTimeLapseWithDurationSeconds:(NSUInteger)durationSeconds
+                       startPositionSteps:(NSUInteger)startPositionSteps
+                         endPositionSteps:(NSUInteger)endPositionSteps
+                           dampingPercent:(NSUInteger)dampingPercent
                                      loop:(BOOL)loop;
 - (BOOL)endTimeLapse;
-- (BOOL)beginStopMotionWithDurationSeconds:(NSInteger)durationSeconds
-                        startPositionSteps:(NSInteger)startPositionSteps
-                          endPositionSteps:(NSInteger)endPositionSteps
-                            dampingPercent:(NSInteger)dampingPercent
-                    captureIntervalSeconds:(NSInteger)captureIntervalSeconds;
+- (BOOL)beginStopMotionWithDurationSeconds:(NSUInteger)durationSeconds
+                        startPositionSteps:(NSUInteger)startPositionSteps
+                          endPositionSteps:(NSUInteger)endPositionSteps
+                            dampingPercent:(NSUInteger)dampingPercent
+                    captureIntervalSeconds:(NSUInteger)captureIntervalSeconds;
 - (BOOL)endStopMotion;
 @end

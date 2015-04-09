@@ -8,10 +8,13 @@
 
 #import "InProgressViewController.h"
 #import "VMHHermesControllerManager.h"
+#import "AppDelegate.h"
 
 @interface InProgressViewController ()
 
-@property (weak, nonatomic) IBOutlet UILabel *progressLabel;
+@property (nonatomic, weak) IBOutlet UILabel *statusLabel;
+@property (weak, nonatomic) IBOutlet UILabel *progressPercentLabel;
+@property (nonatomic, strong) NSNumber *progressValue;
 
 @end
 
@@ -20,12 +23,19 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    // Do any additional setup after loading the view.
+
     if ([self isTimeLapseMode]) {
-        self.progressLabel.text = @"Time Lapse in Progress";
+        self.statusLabel.text = @"Time Lapse in Progress";
     } else {
-        self.progressLabel.text = @"Stop Motion in Progress";
+        self.statusLabel.text = @"Stop Motion in Progress";
     }
+    self.progressValue = @0;
+    self.progressPercentLabel.text = @"0%";
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(progressUpdated:)
+                                                 name:kReceivedUpdatedProgressNotification
+                                               object:[VMHHermesControllerManager sharedInstance]];
 }
 
 - (void)didReceiveMemoryWarning {
@@ -45,6 +55,16 @@
 
 - (BOOL)isTimeLapseMode {
     return _timeLapseMode;
+}
+
+
+- (void)progressUpdated:(NSNotification *)notification {
+    self.progressValue = [[notification userInfo] objectForKey:kProgressKey];
+    self.progressPercentLabel.text = [NSString stringWithFormat:@"%@%%", self.progressValue];
+    
+    if ([self.progressValue intValue] >= 100) {
+        [self dismissViewControllerAnimated:YES completion:nil];
+    }
 }
 
 @end

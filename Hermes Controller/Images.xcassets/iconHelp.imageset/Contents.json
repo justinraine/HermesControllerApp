@@ -2,12 +2,13 @@
   "images" : [
     {
       "idiom" : "universal",
-      "scale" : "1x"
+      "scale" : "1x",
+      "filename" : "12-1.png"
     },
     {
       "idiom" : "universal",
       "scale" : "2x",
-      "filename" : "gauge-50.png"
+      "filename" : "12.png"
     },
     {
       "idiom" : "universal",
